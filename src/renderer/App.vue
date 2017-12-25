@@ -9,16 +9,16 @@
                 <v-icon v-html="item.icon"></v-icon>
               </v-list-tile-action>
               <v-list-tile-content>
-                <v-list-tile-title v-text="item.title"></v-list-tile-title>
+                <v-list-tile-title v-text="$t(item.title)"></v-list-tile-title>
               </v-list-tile-content>
             </v-list-tile>
           </v-list>
         </v-navigation-drawer>
         <v-toolbar fixed app :clipped-left="clipped">
           <v-toolbar-side-icon @click.native.stop="drawer = !drawer"></v-toolbar-side-icon>
-          <v-toolbar-title v-text="title"></v-toolbar-title>
+          <v-toolbar-title v-text="$t(title)"></v-toolbar-title>
           <v-spacer></v-spacer>
-          <div>{{time}}</div>
+          <b>{{$t('loginAs')}}{{this.$store.state.User.username}}</b>
         </v-toolbar>
         <v-content v-loading.fullscreen.lock="loading">
           <v-container fluid fill-height>
@@ -45,29 +45,39 @@
   } from 'vuex'
 
   export default {
-    name: 'ats-backtest',
+    name: 'AlphaSystem',
     data: () => ({
       clipped: false,
       drawer: false,
       fixed: false,
       items: [{
-          icon: 'apps',
-          title: 'Home',
+          icon: 'home',
+          title: 'menuHome',
           to: '/main'
         },
         {
+          icon: 'trending_up',
+          title: 'menuStrategy',
+          to: '/strategy'
+        },
+        {
+          icon: 'equalizer',
+          title: 'menuBacktest',
+          to: '/backtest'
+        },
+        {
           icon: 'bubble_chart',
-          title: 'Stock',
+          title: 'menuStock',
           to: '/stock'
         },
         {
-          icon: 'bubble_chart',
-          title: 'Run a backtest',
-          to: '/asdasd'
+          icon: 'settings',
+          title: 'menuSetting',
+          to: '/setting'
         },
         {
-          icon: 'bubble_chart',
-          title: 'Logout',
+          icon: 'account_circle',
+          title: 'menuLogout',
           to: '/'
         }
       ],
@@ -111,5 +121,6 @@
 
 <style>
   /* CSS */
-    @import url('http://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons');
+
+  @import url('http://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons');
 </style>

@@ -72,9 +72,10 @@ const actions = {
                 columns: res.data.title,
                 rows: res.data.data
             })
-            commit('SET_PAGE_LOADING', false)
         }).catch((e) => {
             console.log(e)
+        }).finally(()=>{
+            commit('SET_PAGE_LOADING', false)
         })
     }
 }

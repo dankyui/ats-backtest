@@ -11,6 +11,9 @@ import VueI18n from 'vue-i18n'
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import VueParticles from 'vue-particles'
+import lodash from 'lodash'
+import VueLodash from 'vue-lodash'
+import crypto from 'crypto'
 
 import App from './App'
 import router from './router'
@@ -20,6 +23,10 @@ import messages from './i18n'
 const app = electron.remote.app;
 const userData = app.getPath('userData')
 const dir = path.join(userData, '/db')
+const algorithm = 'aes256'
+const key = 'ats-backtest'
+
+global.rootUrl = 'https://0688tckhoj.execute-api.ap-southeast-1.amazonaws.com/dev'
 
 if (!fs.existsSync(dir)) {
   mkdirp.sync(dir)
@@ -27,13 +34,45 @@ if (!fs.existsSync(dir)) {
 
 global.db = new Datastore({
   filename: path.join(dir, '/data'),
-  autoload: true
+  autoload: true,
+  afterSerialization: function (doc) {
+    // console.log('AFTER SERIALIZATION')
+    // console.log('A - DOC : ' + doc)
+    if (isJson(doc)) {
+      let cipher = crypto.createCipher(algorithm, key);
+      let encrypted = cipher.update(JSON.stringify(doc), 'utf8', 'hex') + cipher.final('hex');
+      // console.log("Ser " + encrypted);
+      return encrypted;
+    }
+    return doc;
+  },
+  beforeDeserialization: function (doc) {
+    // console.log('BEFORE SERIALIZATION')
+    // console.log('B - DOC : ' + doc)
+
+    let decipher = crypto.createDecipher(algorithm, key);
+
+    try {
+      let decrypted = decipher.update(doc, 'hex', 'utf8') + decipher.final('utf8');
+      // console.log("decipher" + JSON.parse(decrypted));
+      return JSON.parse(decrypted);
+    } catch (e) {
+      // console.log('Catched error ' + doc)
+      return doc
+    }
+  }
 })
 
-Vue.use(Vuetify)
+Vue.use(Vuetify, {
+  theme: {
+    primary: 'green',
+  }
+})
 Vue.use(VueI18n)
 Vue.use(ElementUI)
 Vue.use(VueParticles)
+Vue.use(VueLodash, lodash)
+global._ = lodash
 
 // Create VueI18n instance with options
 const i18n = new VueI18n({
@@ -46,7 +85,7 @@ Vue.http = Vue.prototype.$http = axios
 Vue.config.productionTip = false
 global.router = router
 global.store = store
-global.rootUrl = 'https://0688tckhoj.execute-api.ap-southeast-1.amazonaws.com/dev'
+
 /* eslint-disable no-new */
 new Vue({
   components: {
@@ -57,6 +96,25 @@ new Vue({
   template: '<App/>',
   i18n
 }).$mount('#app')
+
+
+function isJson(item) {
+  item = typeof item !== "string" ?
+    JSON.stringify(item) :
+    item;
+
+  try {
+    item = JSON.parse(item);
+  } catch (e) {
+    return false;
+  }
+
+  if (typeof item === "object" && item !== null) {
+    return true;
+  }
+
+  return false;
+}
 
 Vue.prototype.$locale = {
   change(lang) {

@@ -1,19 +1,17 @@
 import Vue from 'vue';
 
-const LOAD_DEFAULT_LANGUAGE = 'LOAD_DEFAULT_LANGUAGE'
 const SET_LANGUAGE = 'SET_LANGUAGE'
 const GET_LANGUAGE_ID = 'GET_LANGUAGE_ID'
 
 const state = {
+    language:'en',
     languageId: 0
 }
 
 const mutations = {
-    [SET_LANGUAGE](state, id) {
-        state.languageId = id
-    },
-    [LOAD_DEFAULT_LANGUAGE](state, id) {
-        state.languageId = id
+    [SET_LANGUAGE](state, obj) {
+        state.languageId = obj.id
+        state.language = obj.language
     }
 
 }
@@ -38,7 +36,7 @@ const actions = {
             } else {
                 Vue.prototype.$locale.change(doc.default_language)
                 const id = getLanguageId(doc.default_language)
-                commit(LOAD_DEFAULT_LANGUAGE, id)
+                commit(SET_LANGUAGE, {id:id,language:doc.default_language})
             }
         })
     },
@@ -54,7 +52,7 @@ const actions = {
         })
         Vue.prototype.$locale.change(lang)
         const id = getLanguageId(lang)
-        commit(SET_LANGUAGE, id)
+        commit(SET_LANGUAGE, {id:id,language:lang})
     }
 }
 

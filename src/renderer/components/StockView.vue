@@ -1,21 +1,15 @@
 <template>
   <v-layout row wrap justify-center id="wrapper">
-    <v-flex xs12 md4 offset-md1 class="text-xs-center centered">
-      <img id="logo" class="logo" src="~@/assets/alpha-logo-black-rgb.svg" alt="alpha-ats-logo">
-    </v-flex>
+    <logo></logo>
     <v-flex xs10 class="mt-3">
       <v-card>
-        <v-card-title>
-          <h2 class="pt-4" style="color:grey">
-            <u>{{$t('numOfStock')}} {{numOfStock}}</u>
-          </h2>
-          <v-spacer></v-spacer>
-          <div class="text-xs-right pt-2">
-            <v-btn color="primary" @click.native="toggleHighlight" fab :flat="!highlight">
+        <v-toolbar color="success" dark>
+        <v-toolbar-title>{{$t('numOfStock')}} {{numOfStock}}</v-toolbar-title>
+        <v-spacer></v-spacer>
+        <v-btn @click.native="toggleHighlight" icon>
               <v-icon>format_color_fill</v-icon>
             </v-btn>
-          </div>
-        </v-card-title>
+      </v-toolbar>
         <v-card-title>
           <v-text-field append-icon="search" label="Search" single-line hide-details v-model="search"></v-text-field>
         </v-card-title>
@@ -38,14 +32,9 @@
                 </td>
               </tr>
             </template>
-            <template slot="no-data">
-              <v-alert :value="true" color="error" icon="warning">
-                Sorry, nothing to display here :(
-              </v-alert>
-            </template>
           </v-data-table>
           <div class="text-xs-center pt-2">
-            <v-pagination v-model="pagination.page" :length="pages"></v-pagination>
+            <v-pagination color="success" v-model="pagination.page" :length="pages"></v-pagination>
           </div>
         </template>
       </v-card>
@@ -57,9 +46,11 @@
   import {
     mapActions
   } from 'vuex'
+  import Logo from './ShareView/Logo'
 
   export default {
     name: 'stock',
+    components: { Logo },
     data() {
       return {
         search: '',

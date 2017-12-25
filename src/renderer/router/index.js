@@ -11,12 +11,27 @@ const router = new Router({
     },
     {
       path: '/stock',
-      name: 'stock',
+      name: 'stock-view',
       component: require('@/components/StockView').default
     },
     {
+      path: '/strategy',
+      name: 'strategy-view',
+      component: require('@/components/StrategyView').default
+    },
+    {
+      path: '/backtest',
+      name: 'backtest-view',
+      component: require('@/components/BacktestView').default
+    },
+    {
+      path: '/setting',
+      name: 'setting-view',
+      component: require('@/components/SettingView').default
+    },
+    {
       path: '/',
-      name: 'login',
+      name: 'login-view',
       component: require('@/components/LoginView').default
     },
     {
@@ -27,11 +42,22 @@ const router = new Router({
 })
 
 router.beforeEach((to, from, next) => {
-  // setTimeout(() => {
-  let title = 'ATS Backtest'
+  let title
   switch (to.path) {
-    case '/stock':
-      title = 'Stock'
+    case '/main':
+      title = 'menuHome'
+      break
+      case '/strategy':
+      title = 'menuStrategy'
+      break
+      case '/backtest':
+      title = 'menuBacktest'
+      break
+      case '/stock':
+      title = 'menuStock'
+      break
+      case '/setting':
+      title = 'menuSetting'
       break
   }
   store.commit('SET_TITLE', title)
@@ -41,7 +67,6 @@ router.beforeEach((to, from, next) => {
   } else {
     next()
   }
-  // }, 500)
 })
 
 export default router
