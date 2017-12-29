@@ -28,7 +28,23 @@ module.exports = {
         labelBacktestPanel:'Run a Backtest',
         labelResultPanel:'Result',
         labelMyStrategies:'My Strategies',
-        canPickMoreThanOne:'Can pick more than one strategy'
+        canPickMoreThanOne:'Can pick more than one strategy',
+        insertDataset:'Insert Dataset',
+        remove:'Remove',
+        availableDataset:'Available dataset',
+        save:'Save',
+        dataset:'Dataset',
+        periodSelected:'Period Selected',
+        productType:'Product Type',
+        productExchange:'Exchange',
+        productCode:'Product Code',
+        otherSettings:'Other Settings',
+        backtestParameters:'Backtest Parameters',
+        noData:'Press ＋ insert dataset',
+        backtestPanelHeader:'Backtest Settings',
+        datasetHeader:'Dataset',
+        calculationHeader:'Indicators'
+
     },
     zh: {
         signin:'登入',
@@ -59,6 +75,21 @@ module.exports = {
         labelBacktestPanel:'回測設定',
         labelResultPanel:'回測結果',
         labelMyStrategies:'我的策略',
-        canPickMoreThanOne:'可選多於一個策略'
+        canPickMoreThanOne:'可選多於一個策略',
+        insertDataset:'加入數據集',
+        remove:'移除',
+        availableDataset:'可用數據集',
+        save:'儲存',
+        dataset:'數據集',
+        periodSelected:'時段',
+        productType:'產品類別',
+        productExchange:'交易所',
+        productCode:'產品編號',
+        otherSettings:'其他設定',
+        backtestParameters:'參數設定',
+        noData:'按 ＋ 加入數據集',
+        backtestPanelHeader:'回測設定',
+        datasetHeader:'數據集',
+        calculationHeader:'技術指標'
     },
 }

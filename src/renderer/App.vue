@@ -2,7 +2,7 @@
   <div id="app">
     <v-app>
       <div v-if="currentPath!='/'">
-        <v-navigation-drawer fixed :clipped="clipped" v-model="drawer" app>
+        <v-navigation-drawer fixed :clipped="clipped" v-model="drawer" app disable-resize-watcher temporary>
           <v-list>
             <v-list-tile router :to="item.to" :key="i" v-for="(item, i) in items" exact>
               <v-list-tile-action>
@@ -84,9 +84,30 @@
       time: ''
     }),
     mounted() {
+      console.log('APP mount')
+      this.$root.backtestCharts=[]
       this.timer()
+      this.onResize()
+      window.addEventListener('resize', this.onResize, {
+        passive: true
+      })
+    },
+    beforeDestroy() {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('resize', this.onResize, {
+          passive: true
+        })
+      }
     },
     methods: {
+      onResize() {
+        console.log(this)
+        const diff = window.innerWidth - this.width
+        _.map(this.$root.backtestCharts, x => {
+          x.chart.setSize(x.chart.chartWidth + diff, x.chart.chartHeight)
+        })
+        this.width = window.innerWidth
+      },
       timer() {
         setInterval(() => {
           this.time = new Date().toLocaleString()

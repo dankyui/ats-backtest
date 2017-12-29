@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-data-table v-model="selected" v-bind:headers="headers" v-bind:items="savedProduct" select-all hide-actions v-bind:pagination.sync="pagination"
+    <v-data-table v-model="selected" v-bind:headers="headers" v-bind:items="savedProduct" select-all hide-actions v-bind:pagination.sync="pagination" :no-data-text="$t('noData')"
       item-key="id" class="elevation-1">
       <template slot="headers" slot-scope="props">
         <tr>
@@ -9,7 +9,7 @@
           </th>
           <th v-for="header in props.headers" :key="header.text" :class="['column sortable', pagination.descending ? 'desc' : 'asc', header.value === pagination.sortBy ? 'active' : '']" class="text-xs-right" @click="changeSort(header.value)">
             <v-icon>arrow_upward</v-icon>
-            {{ header.text }}
+            {{ $t(header.text) }}
           </th>
         </tr>
       </template>
@@ -29,22 +29,22 @@
           <v-btn slot="activator" fab small @click.native.stop="dialog = true">
             <v-icon>add</v-icon>
           </v-btn>
-          <span>Insert Dataset</span>
+          <span>{{$t('insertDataset')}}</span>
         </v-tooltip>
         <v-tooltip right>
           <v-btn slot="activator" fab small @click.stop="removeDataset">
             <v-icon>remove</v-icon>
           </v-btn>
-          <span>Remove</span>
+          <span>{{$t('remove')}}</span>
         </v-tooltip>
         <v-dialog v-model="dialog" max-width="550">
           <v-card style="height:420px">
             <v-card-title class="headline">
-              <span>Available dataset</span>
+              <span>{{$t('availableDataset')}}</span>
               <v-spacer></v-spacer>
               <v-card-actions>
-                <v-btn color="green darken-1" flat="flat" @click.native="dialog = false">Cancel</v-btn>
-                <v-btn color="green darken-1" flat="flat" @click="submitDataset" :disabled="!productTypeV.length||!productExchangeV.length||!productCodeV.length||!datasetPeriod.length">Save</v-btn>
+                <v-btn color="green darken-1" flat="flat" @click.native="dialog = false">{{$t('cancel')}}</v-btn>
+                <v-btn color="green darken-1" flat="flat" @click="submitDataset" :disabled="!productTypeV.length||!productExchangeV.length||!productCodeV.length||!datasetPeriod.length">{{$t('save')}}</v-btn>
               </v-card-actions>
             </v-card-title>
             <v-divider></v-divider>
@@ -52,14 +52,14 @@
               <v-container grid-list-md>
                 <v-layout wrap>
                   <v-flex xs12>
-                    <v-select :value="productTypeV" @change="productTypeC" combobox label="Product Type" required :items="productType"></v-select>
+                    <v-select :value="productTypeV" @change="productTypeC" combobox :label="$t('productType')" required :items="productType"></v-select>
                   </v-flex>
                   <v-flex xs12>
-                    <v-select :value="productExchangeV" @change="productExchangeC" combobox label="Exchange" required :items="productExchangeI"
+                    <v-select :value="productExchangeV" @change="productExchangeC" combobox :label="$t('productExchange')" required :items="productExchangeI"
                       :disabled="!productTypeV.length"></v-select>
                   </v-flex>
                   <v-flex xs12>
-                    <v-select :value="productCodeV" @change="productCodeC" combobox label="Product Code" required :items="productCodeI" :disabled="!productExchangeV.length"></v-select>
+                    <v-select :value="productCodeV" @change="productCodeC" combobox :label="$t('productCode')" required :items="productCodeI" :disabled="!productExchangeV.length"></v-select>
                   </v-flex>
                   <v-flex xs12>
                     <date-picker style="width:100%" type="datetime" :minute-step="1" v-model="datasetPeriod" lang="en" range format="yyyy-MM-dd HH:mm"
@@ -90,12 +90,12 @@
         dialog: false,
         headers: [
           {
-            text: 'Dataset',
+            text: 'dataset',
             value: 'dataset',
             align: 'left'
           },
           {
-            text: 'Period selected',
+            text: 'periodSelected',
             value: 'periodSelected',
             align: 'left'
           },

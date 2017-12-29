@@ -14,11 +14,16 @@ import VueParticles from 'vue-particles'
 import lodash from 'lodash'
 import VueLodash from 'vue-lodash'
 import crypto from 'crypto'
+import VueMoment from 'vue-moment'
+import moment from 'moment'
+import VueHighcharts from 'vue-highcharts'
+import Highcharts from 'highcharts'
 
 import App from './App'
 import router from './router'
 import store from './store'
 import messages from './i18n'
+import loadStock from 'highcharts/modules/stock'
 
 const app = electron.remote.app;
 const userData = app.getPath('userData')
@@ -35,32 +40,32 @@ if (!fs.existsSync(dir)) {
 global.db = new Datastore({
   filename: path.join(dir, '/data'),
   autoload: true,
-  afterSerialization: function (doc) {
-    // console.log('AFTER SERIALIZATION')
-    // console.log('A - DOC : ' + doc)
-    if (isJson(doc)) {
-      let cipher = crypto.createCipher(algorithm, key);
-      let encrypted = cipher.update(JSON.stringify(doc), 'utf8', 'hex') + cipher.final('hex');
-      // console.log("Ser " + encrypted);
-      return encrypted;
-    }
-    return doc;
-  },
-  beforeDeserialization: function (doc) {
-    // console.log('BEFORE SERIALIZATION')
-    // console.log('B - DOC : ' + doc)
+  // afterSerialization: function (doc) {
+  //   // console.log('AFTER SERIALIZATION')
+  //   // console.log('A - DOC : ' + doc)
+  //   if (isJson(doc)) {
+  //     let cipher = crypto.createCipher(algorithm, key);
+  //     let encrypted = cipher.update(JSON.stringify(doc), 'utf8', 'hex') + cipher.final('hex');
+  //     // console.log("Ser " + encrypted);
+  //     return encrypted;
+  //   }
+  //   return doc;
+  // },
+  // beforeDeserialization: function (doc) {
+  //   // console.log('BEFORE SERIALIZATION')
+  //   // console.log('B - DOC : ' + doc)
 
-    let decipher = crypto.createDecipher(algorithm, key);
+  //   let decipher = crypto.createDecipher(algorithm, key);
 
-    try {
-      let decrypted = decipher.update(doc, 'hex', 'utf8') + decipher.final('utf8');
-      // console.log("decipher" + JSON.parse(decrypted));
-      return JSON.parse(decrypted);
-    } catch (e) {
-      // console.log('Catched error ' + doc)
-      return doc
-    }
-  }
+  //   try {
+  //     let decrypted = decipher.update(doc, 'hex', 'utf8') + decipher.final('utf8');
+  //     // console.log("decipher" + JSON.parse(decrypted));
+  //     return JSON.parse(decrypted);
+  //   } catch (e) {
+  //     // console.log('Catched error ' + doc)
+  //     return doc
+  //   }
+  // }
 })
 
 Vue.use(Vuetify, {
@@ -71,8 +76,20 @@ Vue.use(Vuetify, {
 Vue.use(VueI18n)
 Vue.use(ElementUI)
 Vue.use(VueParticles)
+Vue.use(VueMoment)
+global.moment = moment
 Vue.use(VueLodash, lodash)
 global._ = lodash
+
+loadStock(Highcharts)
+Vue.use(VueHighcharts, {
+  Highcharts
+})
+Highcharts.setOptions({
+  global: {
+    useUTC: false
+}
+})
 
 // Create VueI18n instance with options
 const i18n = new VueI18n({

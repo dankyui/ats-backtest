@@ -13,18 +13,19 @@
         <!-- <v-stepper-step step="2" v-bind:complete="e6 > 2" :editable="!this.$store.state.Backtest.products.length<=0">{{$t('selectStrategy')}}</v-stepper-step> -->
         <v-stepper-step step="2" v-bind:complete="e6 > 2" editable>{{$t('selectStrategy')}}</v-stepper-step>
         <v-stepper-content step="2">
-            <!-- <v-card class="mb-5" height="200px"> -->
                 <strategy-chips></strategy-chips>
-            <!-- </v-card> -->
             <v-btn color="primary" @click.native="e6 = 3" :disabled="this.$store.state.Backtest.selectedStrategies.length<=0">{{$t('continue')}}</v-btn>
             <v-btn flat @click="closePanelA">{{$t('cancel')}}</v-btn>
         </v-stepper-content>
-        <v-stepper-step step="3" v-bind:complete="e6 > 3" :editable="!this.$store.state.Backtest.products.length<=0&&!this.$store.state.Backtest.selectedStrategies.length<=0">{{$t('selectOutput')}}</v-stepper-step>
+        <!-- <v-stepper-step step="3" v-bind:complete="e6 > 3" :editable="!this.$store.state.Backtest.products.length<=0&&!this.$store.state.Backtest.selectedStrategies.length<=0">{{$t('otherSettings')}}</v-stepper-step> -->
+        <v-stepper-step step="3" v-bind:complete="e6 > 3" editable>{{$t('backtestParameters')}}</v-stepper-step>
         <v-stepper-content step="3">
-            <v-card class="mb-5" height="200px"></v-card>
-            <v-btn color="primary"  @click.native="e6 = 1" @click="startBacktest">{{$t('start')}}</v-btn>
+            <!-- <other-settings></other-settings> -->
+            <!-- <v-btn color="primary"  @click.native="e6 = 1" @click="startBacktest">{{$t('start')}}</v-btn> -->
+            <v-btn :disabled="this.$store.state.Backtest.running" color="primary" @click="startBacktest">{{$t('start')}}</v-btn>
             <v-btn flat @click="closePanelA">{{$t('cancel')}}</v-btn>
         </v-stepper-content>
+
         <!-- <v-stepper-step step="4">View setup instructions</v-stepper-step>
         <v-stepper-content step="4">
             <v-card color="green lighten-1" class="mb-5" height="200px"></v-card>
@@ -37,12 +38,14 @@
 <script>
     import DatasetTable from './DatasetTable'
     import StrategyChips from './StrategyChips'
+    import OtherSettings from './OtherSettings'
 
     export default {
         props: ['closePanelA','startBacktest'],
         components: {
             DatasetTable,
-            StrategyChips
+            StrategyChips,
+            OtherSettings
         },
         data() {
             return {
