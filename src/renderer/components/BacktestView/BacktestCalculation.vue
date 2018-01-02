@@ -12,16 +12,9 @@
         components: {},
         data() {
             return {
-                e6: 1,
-                hasResult: false
             }
         },
         computed: {
-            options: {
-                get() {
-                    return this.$store.state.Backtest.ohlc
-                }
-            }
         },
         mounted() {
             this.$root.backtestCharts.push(...this.$refs.highcharts)
@@ -34,6 +27,11 @@
         },
         methods: {
             getOptions(key) {
+                let title={}
+                const keyAry= key.split('-')
+                title={
+                    text:keyAry[keyAry.length-1]+' '+this.$store.state.Locale.file[key]
+                }
                 return {
                     credits: {
                         enabled: false
@@ -42,32 +40,49 @@
                         selected: 1,
                         inputEnabled: false
                     },
-                    title: {
-                        text: key
-                    },
-
+                    title: title,
                     yAxis: [{
                         labels: {
                             align: 'right',
                             x: -3
                         },
                         title: {
-                            text: 'OHLC'
+                            text: this.$t('ohlc')
                         },
-                        height: '100%',
+                        height: '60%',
                         lineWidth: 2,
                         resize: {
                             enabled: true
                         }
+                    }, {
+                        labels: {
+                            align: 'right',
+                            x: -3
+                        },
+                        title: {
+                            text: this.$t('volume')
+                        },
+                        top: '65%',
+                        height: '35%',
+                        offset: 0,
+                        lineWidth: 2
                     }],
 
                     tooltip: {
-                        valueDecimals: 2
+                        // valueDecimals: 2
                     },
 
                     series: [{
-                        name: 'MA',
-                        data: this.$store.state.Backtest.temp,
+                        type: 'candlestick',
+                        name: title.text,
+                        data: this.$store.state.Backtest.calSet[key+'_timeframe'].map((x=>[x[0],x[1],x[2],x[3],x[4]])),
+                        turboThreshold: 0
+                    },{
+                        type: 'column',
+                        name: this.$t('volume'),
+                        data: this.$store.state.Backtest.calSet[key+'_timeframe'].map((x=>[x[0],x[5]])),
+                                                yAxis: 1,
+
                         turboThreshold: 0,
                     }]
                 }

@@ -2,7 +2,7 @@
     <!-- <v-container grid-list-md text-xs-center>
         <v-layout row wrap>
             <v-flex xs12> -->
-    <v-card class="mb-5">
+    <v-card class="mb-5 pa-3">
         <!-- <highcharts :options="options"></highcharts> -->
         <v-btn round color="error" dark @click="breakBacktest" v-if="this.$store.state.Backtest.running">Stop</v-btn>
 
@@ -47,10 +47,11 @@
                 this.$store.commit('BREAK_BACKTEST')
             },
             getOptions(key) {
-                // setInterval(()=>{
-                // console.log(this.$store.state.Backtest.volume[key])
-                // },10000)
-                // return this.$store.state.Backtest.ohlc[key]
+                let title={}
+                const keyAry= key.split('-')
+                title={
+                    text:keyAry[keyAry.length-1]+' '+this.$store.state.Locale.file[key]
+                }
                 return {
                     chart: {},
                     credits: {
@@ -60,17 +61,14 @@
                         selected: 1,
                         inputEnabled: false
                     },
-                    title: {
-                        text: key
-                    },
-
+                    title: title,
                     yAxis: [{
                         labels: {
                             align: 'right',
                             x: -3
                         },
                         title: {
-                            text: 'OHLC'
+                            text: this.$t('ohlc')
                         },
                         height: '60%',
                         lineWidth: 2,
@@ -83,7 +81,7 @@
                             x: -3
                         },
                         title: {
-                            text: 'Volume'
+                            text: this.$t('volume')
                         },
                         top: '65%',
                         height: '35%',
@@ -97,12 +95,12 @@
 
                     series: [{
                         type: 'candlestick',
-                        name: 'AAPL',
+                        name: title.text,
                         data: this.$store.state.Backtest.ohlc[key],
                         turboThreshold: 0
                     }, {
                         type: 'column',
-                        name: 'Volume',
+                        name: this.$t('volume'),
                         data: this.$store.state.Backtest.volume[key],
                         yAxis: 1,
                         turboThreshold: 0,

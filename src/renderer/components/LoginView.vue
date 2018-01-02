@@ -5,7 +5,7 @@
         <vue-particles color="#C0C0C0" linesColor="#808080" style="position: absolute;width: 100%;height: 100%;"></vue-particles>
         <v-layout flex align-center justify-center>
           <v-flex xs12 sm4>
-            <v-toolbar class="pb-3 pt-3 blue">
+            <v-toolbar class="pb-3 pt-3" color="green">
               <v-toolbar-title class="white--text">{{ $t('signin')}}</v-toolbar-title>
               <v-spacer></v-spacer>
               <v-toolbar-items>

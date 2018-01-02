@@ -1,4 +1,4 @@
-module.exports = {
+let messages={
     en: {
         signin:'Sign in',
         usernamePH:'Enter your username',
@@ -42,9 +42,11 @@ module.exports = {
         backtestParameters:'Backtest Parameters',
         noData:'Press ＋ insert dataset',
         backtestPanelHeader:'Backtest Settings',
-        datasetHeader:'Dataset',
-        calculationHeader:'Indicators'
-
+        datasetHeader:'Dataset ( Timeframe = 1 min ) ',
+        calculationHeader:'Indicators',
+        inputDate:'Select date range',
+        volume:'Volume',
+        ohlc:'OHLC'
     },
     zh: {
         signin:'登入',
@@ -89,7 +91,12 @@ module.exports = {
         backtestParameters:'參數設定',
         noData:'按 ＋ 加入數據集',
         backtestPanelHeader:'回測設定',
-        datasetHeader:'數據集',
-        calculationHeader:'技術指標'
-    },
+        datasetHeader:'數據集  ( 時間框架 = 1 分鐘 ) ',
+        calculationHeader:'技術指標',
+        inputDate:'選擇回測日期',
+        volume:'成交量',
+        ohlc:'高開低收'
+    }
 }
+
+export default messages

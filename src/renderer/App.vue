@@ -84,7 +84,7 @@
       time: ''
     }),
     mounted() {
-      console.log('APP mount')
+      // console.log('APP mount')
       this.$root.backtestCharts=[]
       this.timer()
       this.onResize()
@@ -101,7 +101,6 @@
     },
     methods: {
       onResize() {
-        console.log(this)
         const diff = window.innerWidth - this.width
         _.map(this.$root.backtestCharts, x => {
           x.chart.setSize(x.chart.chartWidth + diff, x.chart.chartHeight)
@@ -112,11 +111,12 @@
         setInterval(() => {
           this.time = new Date().toLocaleString()
         }, 1000)
-      }
+      },
+      ...mapActions([
+      'logout',
+      'getLanguageFile'
+    ])
     },
-    ...mapActions([
-      'logout'
-    ]),
     computed: {
       currentPath: {
         get() {

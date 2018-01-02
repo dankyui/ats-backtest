@@ -18,7 +18,7 @@
           <td>
             <v-checkbox primary hide-details :input-value="props.selected"></v-checkbox>
           </td>
-          <td class="text-xs-right">{{ props.item.dataset }}</td>
+          <td class="text-xs-right">{{ trans(props.item.dataset) }}</td>
           <td class="text-xs-right">{{ props.item.periodSelected }}</td>
         </tr>
       </template>
@@ -62,7 +62,7 @@
                     <v-select :value="productCodeV" @change="productCodeC" combobox :label="$t('productCode')" required :items="productCodeI" :disabled="!productExchangeV.length"></v-select>
                   </v-flex>
                   <v-flex xs12>
-                    <date-picker style="width:100%" type="datetime" :minute-step="1" v-model="datasetPeriod" lang="en" range format="yyyy-MM-dd HH:mm"
+                    <date-picker style="width:100%" type="datetime" :minute-step="1" v-model="datasetPeriod" :placeholder="$t('inputDate')" range :lang="this.$store.state.Locale.language" format="yyyy-MM-dd HH:mm"
                       :shortcuts="shortcuts" confirm></date-picker>
                   </v-flex>
                 </v-layout>
@@ -108,11 +108,13 @@
 
         ],
         datasetPeriod: '',
-        shortcuts: [{
-          text: 'Today',
-          start: new Date(),
-          end: new Date()
-        }],
+        shortcuts: [
+        //   {
+        //   text: 'Today',
+        //   start: new Date(),
+        //   end: new Date()
+        // }
+        ],
         productType: [],
         productTypeV: '',
         productExchange: [],
@@ -134,6 +136,9 @@
       this.fetchDatasetList()
     },
     methods: {
+      trans(v){
+        return v.split('-')[2]+' '+this.$store.state.Locale.file[v]
+      },
       ...mapActions([
         'saveProduct',
         'removeProduct'
@@ -170,7 +175,7 @@
       findUnique(array, index) {
         let newArray = this._.map(array, x => {
           return {
-            text: x[index],
+            text: this.$store.state.Locale.file[x[index]],
             value: x[index]
           }
         })
@@ -193,7 +198,7 @@
           //product exchange
           let exchange = this._.map(data, x => {
             return {
-              text: x.slice(0, 2).join('-'),
+              text: this.$store.state.Locale.file[x[1]],
               value: x.slice(0, 2).join('-')
             }
           })
@@ -204,7 +209,7 @@
 
           let code = this._.map(data, x => {
             return {
-              text: x.join('-'),
+              text: x[2]+' '+this.$store.state.Locale.file[x.join('-')],
               value: x.join('-')
             }
           })
