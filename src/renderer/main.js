@@ -142,6 +142,18 @@ Vue.prototype.$locale = {
   }
 }
 
+Vue.prototype.$time={
+  minimize(m){
+    if(m>=1440){
+      return m/1440+' day(s)'
+    }else if(m>=60){
+      return m/60+' hour(s)'
+    }else{
+      return m+' min(s)'
+    }
+  }
+}
+
 Vue.prototype.$rgb = {
   hsl_col_perc(percent, start, end) {
     let a = percent / 100,

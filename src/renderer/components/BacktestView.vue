@@ -65,6 +65,10 @@
             startBacktest() {
                 store.commit('REFRESH_PROGRESS')
                 store.commit('BACKTEST_RUNNING', true)
+                // _.map(this.$root.backtestCharts,x=>{
+                //     x.chart.destroy()
+                //     console.log(x)}
+                // )
                 this.$root.backtestCharts=[]
                 setTimeout(() => {
 
