@@ -17,6 +17,11 @@
                 <v-divider></v-divider>
                 <backtest-calculation></backtest-calculation>
             </v-expansion-panel-content>
+            <v-expansion-panel-content v-model="expandD" v-if="this.$store.state.Backtest.startGenResult">
+                <h2 slot="header">{{$t('resultHeader')}}</h2>
+                <v-divider></v-divider>
+                <backtest-result></backtest-result>
+            </v-expansion-panel-content>
         </v-expansion-panel>
     </v-layout>
 </template>
@@ -30,6 +35,7 @@
     import BacktestStep from './BacktestView/BacktestStep'
     import BacktestData from './BacktestView/BacktestData'
     import BacktestCalculation from './BacktestView/BacktestCalculation'
+    import BacktestResult from './BacktestView/BacktestResult'
 
     export default {
         name: 'backtest',
@@ -38,13 +44,15 @@
             HistoricalData,
             BacktestStep,
             BacktestData,
-            BacktestCalculation
+            BacktestCalculation,
+            BacktestResult
         },
         data() {
             return {
                 expandA: true,
                 expandB: true,
                 expandC: true,
+                expandD:true,
                 started: false
             }
         },
@@ -71,7 +79,6 @@
                 // )
                 this.$root.backtestCharts=[]
                 setTimeout(() => {
-
                     this.expandA = false
                     // this.expandB = true
                     this.started = true

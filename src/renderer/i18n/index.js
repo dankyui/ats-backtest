@@ -44,6 +44,7 @@ let messages={
         backtestPanelHeader:'Backtest Settings',
         datasetHeader:'Dataset ( Timeframe = 1 min ) ',
         calculationHeader:'Indicators',
+        resultHeader:'Backtest Results',
         inputDate:'Select date range',
         volume:'Volume',
         ohlc:'OHLC'
@@ -93,6 +94,7 @@ let messages={
         backtestPanelHeader:'回測設定',
         datasetHeader:'數據集  ( 時間框架 = 1 分鐘 ) ',
         calculationHeader:'技術指標',
+        resultHeader:'回測結果',
         inputDate:'選擇回測日期',
         volume:'成交量',
         ohlc:'高開低收'

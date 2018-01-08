@@ -3,15 +3,17 @@
         <v-layout row wrap>
             <v-flex xs12> -->
     <v-card class="mb-5 pa-3">
-        <div v-if="!this.$store.state.Backtest.startCalculate">loading</div>
+
         <!-- <highcharts :options="options"></highcharts> -->
         <v-btn round color="error" dark @click="breakBacktest" v-if="this.$store.state.Backtest.running">Stop</v-btn>
-
-    <div v-else>
-        <div v-for="product in this.$store.state.Backtest.products" ref="container">
-            <!-- {{ getOptions(product.dataset) }} -->
-            <BacktestChart :dataset="product.dataset"></BacktestChart>
+        <div v-if="!this.$store.state.Backtest.startCalculate">
+            <v-progress-linear v-bind:indeterminate="true" color="primary" class="mt-5"></v-progress-linear>
         </div>
+        <div v-else>
+            <div v-for="product in this.$store.state.Backtest.products" ref="container">
+                <!-- {{ getOptions(product.dataset) }} -->
+                <BacktestChart :dataset="product.dataset"></BacktestChart>
+            </div>
         </div>
 
         <!-- {{options}} -->
@@ -30,7 +32,9 @@
 
     export default {
         props: [],
-        components: {BacktestChart},
+        components: {
+            BacktestChart
+        },
         data() {
             return {
                 e6: 1,
@@ -39,10 +43,8 @@
                 height: window.innerHeight,
             }
         },
-        mounted() {
-        },
-        computed: {
-        },
+        mounted() {},
+        computed: {},
         methods: {
             ...mapActions([
                 'runBacktest'

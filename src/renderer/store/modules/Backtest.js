@@ -14,10 +14,14 @@ const BREAK_BACKTEST = 'BREAK_BACKTEST'
 const BACKTEST_RUNNING = 'BACKTEST_RUNNING'
 const START_LOAD_DATA = 'START_LOAD_DATA'
 const START_CALCULATE = 'START_CALCULATE'
+const START_GEN_RESULT='START_GEN_RESULT'
 const REFRESH_PROGRESS = 'REFRESH_PROGRESS'
 const SET_CAL_SET = 'SET_CAL_SET'
 const SET_RESULT_SET = 'SET_RESULT_SET'
 const ADD_TO_BUFFER = 'ADD_TO_BUFFER'
+const CHANGE_OPEN_POS = 'CHANGE_OPEN_POS'
+const SET_CAPITAL = 'SET_CAPITAL'
+const ADD_EC = 'ADD_EC'
 
 const state = {
     products: [{
@@ -35,10 +39,10 @@ const state = {
         id: 0,
         name: 'Strategy A',
         timeframe: 1440,
+        priceType: 'close',
         value: [{
             position: 'long',
             actionType: 'entry',
-            priceType: 'close',
             indicators: [
                 [{
                         id: 0,
@@ -91,7 +95,6 @@ const state = {
         }, {
             position: 'long',
             actionType: 'exit',
-            priceType: 'open',
             indicators: [
                 [{
                         id: 2,
@@ -133,19 +136,22 @@ const state = {
         }]
     }],
     selectedStrategies: [0],
-    capital: 10000,
+    initialCapital: 10000,
+    capital: {},
+    size: 100,
     header: 'loadDataset',
     rawData: {},
     buffer: {},
-    ohlc: {},
-    volume: {},
     getAllData: false,
     breakBacktest: false,
     running: false,
     startLoadData: false,
     startCalculate: false,
+    startGenResult:false,
     calSet: {},
-    resultSet: {}
+    resultSet: {},
+    equityCurve: {},
+    openPos: {}
 }
 
 const mutations = {
@@ -177,10 +183,11 @@ const mutations = {
     [SET_INIT_KEY](state, dataset) {
         Vue.set(state.rawData, dataset, [])
         Vue.set(state.buffer, dataset, [])
-        Vue.set(state.ohlc, dataset, [])
-        Vue.set(state.volume, dataset, [])
-        Vue.set(state.calSet, dataset, [])
+        Vue.set(state.calSet, dataset, {})
         Vue.set(state.resultSet, dataset, [])
+        Vue.set(state.equityCurve, dataset, {})
+        Vue.set(state.openPos, dataset, {})
+
         // Vue.set(state.calSet, dataset + '_timeframe', [])
     },
     [CLEAR_BACKTEST](state) {
@@ -189,13 +196,15 @@ const mutations = {
         state.breakBacktest = false
         state.startLoadData = false
         state.startCalculate = false
+        state.startGenResult = false
         state.running = false
         state.rawData = {}
         state.buffer = {}
-        state.ohlc = {}
-        state.volume = {}
         state.calSet = {}
         state.resultSet = {}
+        state.equityCurve = {}
+        state.openPos = {}
+
     },
     [BREAK_BACKTEST](state) {
         state.breakBacktest = true
@@ -210,9 +219,13 @@ const mutations = {
     [START_CALCULATE](state, boo) {
         state.startCalculate = boo
     },
+    [START_GEN_RESULT](state, boo) {
+        state.startGenResult = boo
+    },
     [REFRESH_PROGRESS](state) {
         state.startLoadData = false
         state.startCalculate = false
+        state.startGenResult = false
     },
     [SET_CAL_SET](state, {
         product,
@@ -234,7 +247,60 @@ const mutations = {
         resultData
     }) {
         state.resultSet[product][strategy_id] = resultData
+    },
+    [CHANGE_OPEN_POS](state, {
+        product,
+        strategy_id,
+        isBuy,
+        entryPrice
+    }) {
+        if (!state.openPos[product]) {
+            state.openPos[product] = {}
+        }
+        if (!state.openPos[product][strategy_id]) {
+            state.openPos[product][strategy_id] = []
+        }
+        if (isBuy) {
+            state.openPos[product][strategy_id].push(entryPrice)
+        } else {
+            state.openPos[product][strategy_id].pop()
+        }
+    },
+    [SET_CAPITAL](state, {
+        product,
+        strategy_id,
+        capital
+    }) {
+        state.capital[product][strategy_id] = capital
+    },
+    [ADD_EC](state, {
+        product,
+        strategy_id,
+        data
+    }) {
+        state.equityCurve[product][strategy_id].push(data)
     }
+}
+
+const priceTypeToPrice = (type, tick) => {
+    switch (type) {
+        case 'open':
+            return tick[1]
+        case 'high':
+            return tick[2]
+        case 'low':
+            return tick[3]
+        case 'close':
+            return tick[4]
+    }
+}
+
+const genResult=({
+    product = state.products[0].dataset,
+    index: index = 0
+}={})=>{
+    console.log('fin')
+    store.commit(BACKTEST_RUNNING, false)
 }
 
 const startCalculate = ({
@@ -345,7 +411,7 @@ const startCalculate = ({
                             //         if (indicator.compare1 == 'ma_fast') {
                             //             _.map(data, (x, i) => {
                             if (i < indicator.param1) {} else {
-                                calData[indicatorSet.position][indicatorSet.actionType][orIndex][andIndex]['compareA'].push([x[0], _.round(_.map(data.slice(i - indicator.param1, i), x => x[4]).reduce((a, b) => a + b) / indicator.param1, 2)])
+                                calData[indicatorSet.position][indicatorSet.actionType][orIndex][andIndex]['compareA'].push([x[0], _.round(_.map(data.slice(i - indicator.param1, i), x => priceTypeToPrice(strategy.priceType, x)).reduce((a, b) => a + b) / indicator.param1, 2)])
                             }
                             // })
                             //     name1='#' + indicator.id + ',MA Fast(' + indicator.param1 + ')'
@@ -365,7 +431,7 @@ const startCalculate = ({
                             if (i < indicator.param2) {
                                 // ma_fast.push([x[0], x[4]])
                             } else {
-                                calData[indicatorSet.position][indicatorSet.actionType][orIndex][andIndex]['compareB'].push([x[0], _.round(_.map(data.slice(i - indicator.param2, i), x => x[4]).reduce((a, b) => a + b) / indicator.param2, 2)])
+                                calData[indicatorSet.position][indicatorSet.actionType][orIndex][andIndex]['compareB'].push([x[0], _.round(_.map(data.slice(i - indicator.param2, i), x => priceTypeToPrice(strategy.priceType, x)).reduce((a, b) => a + b) / indicator.param2, 2)])
                             }
                         } //end of ma
 
@@ -393,13 +459,13 @@ const startCalculate = ({
                             }
 
                             if (indicator.compare1 == 'ma_fast') {
-                                compare1Price[orIndex][andIndex] = _.round(_.map(data.slice(i - indicator.param1, i), x => x[4]).reduce((a, b) => a + b) / indicator.param1, 2)
+                                compare1Price[orIndex][andIndex] = _.round(_.map(data.slice(i - indicator.param1, i), x => priceTypeToPrice(strategy.priceType, x)).reduce((a, b) => a + b) / indicator.param1, 2)
                             } else
                             if (indicator.compare1 == 'close') {
                                 compare1Price = _.round(x[4], 2)
                             }
 
-                            compare2Price[orIndex][andIndex] = _.round(_.map(data.slice(i - indicator.param2, i), x => x[4]).reduce((a, b) => a + b) / indicator.param2, 2)
+                            compare2Price[orIndex][andIndex] = _.round(_.map(data.slice(i - indicator.param2, i), x => priceTypeToPrice(strategy.priceType, x)).reduce((a, b) => a + b) / indicator.param2, 2)
 
                             //initialize object
                             if (i == indicator.param1 || i == indicator.param2) {
@@ -426,11 +492,11 @@ const startCalculate = ({
 
                             if (indicatorSet.actionType == 'entry' && !hasEntry[indicatorSet.position]) {
                                 //entry
-                                passCondition(compare1Price, compare2Price, indicatorSet, orIndicator, indicator, orIndex, andIndex, x, i, calData, resultData, aOverb, hasEntry)
+                                passCondition(product, strategy, compare1Price, compare2Price, indicatorSet, orIndicator, indicator, orIndex, andIndex, x, i, calData, resultData, aOverb, hasEntry)
                             } else
                             if (indicatorSet.actionType == 'exit' && hasEntry[indicatorSet.position]) {
                                 //exit
-                                passCondition(compare1Price, compare2Price, indicatorSet, orIndicator, indicator, orIndex, andIndex, x, i, calData, resultData, aOverb, hasEntry)
+                                passCondition(product, strategy, compare1Price, compare2Price, indicatorSet, orIndicator, indicator, orIndex, andIndex, x, i, calData, resultData, aOverb, hasEntry)
                             }
                             if (compare1Price[orIndex][andIndex] > compare2Price[orIndex][andIndex] && !aOverb[indicatorSet.position][indicatorSet.actionType][orIndex][andIndex]) {
                                 // console.log(i, new Date(x[0]), indicator.id + ':cross above')
@@ -485,6 +551,46 @@ const startCalculate = ({
                     })
                 })
             })
+            //if has open position,check current price diff with the entry price
+
+            if (!state.equityCurve[product]) {
+                state.equityCurve[product] = {}
+            }
+            if (!state.equityCurve[product][strategy.id]) {
+                state.equityCurve[product][strategy.id] = []
+            }
+
+            if (!state.capital[product]) {
+                state.capital[product] = {}
+            }
+
+            if (!state.openPos[product]) {
+                state.openPos[product] = {}
+            }
+            if (!state.openPos[product][strategy.id]) {
+                state.openPos[product][strategy.id] = []
+            }
+
+            let capital = state.capital[product][strategy.id] || state.initialCapital
+
+            if (state.openPos[product][strategy.id] != undefined && state.openPos[product][strategy.id].length >
+                0) {
+                // console.log('pos', state.openPos[product][strategy.id])
+                const entryPrice = state.openPos[product][strategy.id][0]
+                const curPrice = priceTypeToPrice(strategy.priceType, x)
+
+                const diff = Math.round((curPrice - entryPrice)*state.size,2)
+                capital += diff
+
+            }
+
+            // console.log(new Date(x[0]), capital)
+            store.commit(ADD_EC, {
+                product: product,
+                strategy_id: strategy.id,
+                data: [x[0], capital]
+            })
+
         })
 
         store.commit(SET_CAL_SET, {
@@ -498,6 +604,8 @@ const startCalculate = ({
             strategy_id: strategy.id,
             resultData
         })
+
+
         // console.log(aOverb)
         // console.log(calData)
 
@@ -614,16 +722,20 @@ const startCalculate = ({
     //     data: ma,
     //     suffix: ''
     // })
-    store.commit(BACKTEST_RUNNING, false)
     index++
-    if (index >= state.products.length) return
+    if (index >= state.products.length) {
+        store.commit(START_GEN_RESULT, true)
+        console.log('finish cal dataa')
+        genResult()
+    }else{
     startCalculate({
         product: state.products[index].dataset,
         index
     })
 }
+}
 
-const passCondition = (compare1Price, compare2Price, indicatorSet, orIndicator, indicator, orIndex, andIndex, x, i, calData, resultData, aOverb, hasEntry) => {
+const passCondition = (product, strategy, compare1Price, compare2Price, indicatorSet, orIndicator, indicator, orIndex, andIndex, x, i, calData, resultData, aOverb, hasEntry) => {
     // console.log(i, new Date(x[0]),'has entry:'+hasEntry[indicatorSet.position])
 
     //**
@@ -660,7 +772,6 @@ const passCondition = (compare1Price, compare2Price, indicatorSet, orIndicator, 
                     case 'v':
                         if (!(compare1Price[i][j] < compare2Price[i][j] && aOverb[indicatorSet.position][indicatorSet.actionType][i][j])) {
                             canTrade = false
-
                         }
                         break
                     case '>':
@@ -681,7 +792,7 @@ const passCondition = (compare1Price, compare2Price, indicatorSet, orIndicator, 
             if (canTrade) break
         }
         if (canTrade) {
-            doAction(indicatorSet, indicator, orIndex, andIndex, hasEntry, resultData, x, i)
+            doAction(product, strategy, indicatorSet, indicator, orIndex, andIndex, hasEntry, resultData, x, i)
         }
         //     switch (indicator.condition) {
         //     case '^':
@@ -725,9 +836,9 @@ const passCondition = (compare1Price, compare2Price, indicatorSet, orIndicator, 
 
 }
 
-const doAction = (indicatorSet, indicator, orIndex, andIndex, hasEntry, resultData, x, i) => {
+const doAction = (product, strategy, indicatorSet, indicator, orIndex, andIndex, hasEntry, resultData, x, i) => {
     if (!hasEntry[indicatorSet.position]) {
-        console.log(i, new Date(x[0]), indicator.id + ':Buy')
+        // console.log(i, new Date(x[0]), indicator.id + ':Buy')
         // console.log(indicatorSet.position+'-'+indicatorSet.actionType+'-'+orIndex+'-'+andIndex+'-a')
 
         // resultData[indicatorSet.position]['trades'].push({
@@ -742,19 +853,44 @@ const doAction = (indicatorSet, indicator, orIndex, andIndex, hasEntry, resultDa
         //     // the flag series will be put on the X axis
         //     shape: 'flag' // Defines the shape of the flags.
         // })
+        store.commit(CHANGE_OPEN_POS, {
+            product: product,
+            strategy_id: strategy.id,
+            isBuy: true,
+            entryPrice: priceTypeToPrice(strategy.priceType, x)
+        })
         resultData[indicatorSet.position]['trades']['buy'].push({
             x: x[0], // Point where the flag appears
             title: 'Buy', // Title of flag displayed on the chart
-            text: 'Buy at $' + x[4] // Text displayed when the flag are highlighted.
-
+            text: 'Buy at $' + priceTypeToPrice(strategy.priceType, x) // Text displayed when the flag are highlighted.
         })
+
+
     } else {
-        console.log(i, new Date(x[0]), indicator.id + ':Sell.')
+        // console.log(i, new Date(x[0]), indicator.id + ':Sell.')
+        let capital = state.capital[product][strategy.id] || state.initialCapital
+        const entryPrice = state.openPos[product][strategy.id][0]
+        const curPrice = priceTypeToPrice(strategy.priceType, x)
+
+        const diff = Math.round((curPrice - entryPrice)*state.size,2)
+        capital += diff
+        store.commit(SET_CAPITAL, {
+            product: product,
+            strategy_id: strategy.id,
+            capital
+        })
+        store.commit(CHANGE_OPEN_POS, {
+            product: product,
+            strategy_id: strategy.id,
+            isBuy: false
+        })
         resultData[indicatorSet.position]['trades']['sell'].push({
             x: x[0], // Point where the flag appears
             title: 'Sell', // Title of flag displayed on the chart
-            text: 'Sell at $' + x[4] // Text displayed when the flag are highlighted.
+            text: 'Sell at $' + priceTypeToPrice(strategy.priceType, x) // Text displayed when the flag are highlighted.
         })
+
+
         // resultData[indicatorSet.position]['trades'].push({
         //     type: 'flags',
         //     data: [{
@@ -868,7 +1004,7 @@ const requestData = ({
                 index
             })
         } else {
-            store.commit(RUN_BACKTEST)
+            store.commit(RUN_BACKTEST)//copy buffer data to rawData
             console.log('finish load dataa')
             store.commit(START_CALCULATE, true)
             startCalculate()
@@ -880,7 +1016,6 @@ const actions = {
     runBacktest({
         commit
     }) {
-        console.log(state.rawData,'rdddddsseeddds')
         store.commit(START_LOAD_DATA, true)
         store.commit(SET_INIT_KEY, state.products[0].dataset)
         const splitProduct = state.products[0].dataset.split('-')
