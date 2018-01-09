@@ -85,6 +85,7 @@
     }),
     mounted() {
       // console.log('APP mount')
+
       this.$root.backtestCharts=[]
       this.timer()
       this.onResize()

@@ -10,7 +10,7 @@
             <v-progress-linear v-bind:indeterminate="true" color="primary" class="mt-5"></v-progress-linear>
         </div>
         <div v-else>
-            <div v-for="product in this.$store.state.Backtest.products" ref="container">
+            <div v-for="product in this.$store.state.Backtest.products">
                 <!-- {{ getOptions(product.dataset) }} -->
                 <BacktestChart :dataset="product.dataset"></BacktestChart>
             </div>

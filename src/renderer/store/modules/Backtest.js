@@ -14,7 +14,7 @@ const BREAK_BACKTEST = 'BREAK_BACKTEST'
 const BACKTEST_RUNNING = 'BACKTEST_RUNNING'
 const START_LOAD_DATA = 'START_LOAD_DATA'
 const START_CALCULATE = 'START_CALCULATE'
-const START_GEN_RESULT='START_GEN_RESULT'
+const START_GEN_RESULT = 'START_GEN_RESULT'
 const REFRESH_PROGRESS = 'REFRESH_PROGRESS'
 const SET_CAL_SET = 'SET_CAL_SET'
 const SET_RESULT_SET = 'SET_RESULT_SET'
@@ -47,10 +47,10 @@ const state = {
                 [{
                         id: 0,
                         type: 'ma',
-                        param1: 3,
+                        param1: 1,
                         param2: 9,
                         param3: 0,
-                        compare1: 'ma_fast',
+                        compare1: 'close',
                         compare2: 'ma_slow',
                         condition: '^'
                     },
@@ -99,10 +99,10 @@ const state = {
                 [{
                         id: 2,
                         type: 'ma',
-                        param1: 5,
-                        param2: 12,
+                        param1: 1,
+                        param2: 9,
                         param3: 0,
-                        compare1: 'ma_fast',
+                        compare1: 'close',
                         compare2: 'ma_slow',
                         condition: 'v'
                     }
@@ -147,7 +147,7 @@ const state = {
     running: false,
     startLoadData: false,
     startCalculate: false,
-    startGenResult:false,
+    startGenResult: false,
     calSet: {},
     resultSet: {},
     equityCurve: {},
@@ -223,9 +223,18 @@ const mutations = {
         state.startGenResult = boo
     },
     [REFRESH_PROGRESS](state) {
+        state.breakBacktest = false
         state.startLoadData = false
         state.startCalculate = false
         state.startGenResult = false
+        state.running = false
+        state.rawData = {}
+        state.buffer = {}
+        state.calSet = {}
+        state.resultSet = {}
+        state.equityCurve = {}
+        state.openPos = {}
+        state.capital={}
     },
     [SET_CAL_SET](state, {
         product,
@@ -295,10 +304,10 @@ const priceTypeToPrice = (type, tick) => {
     }
 }
 
-const genResult=({
+const genResult = ({
     product = state.products[0].dataset,
     index: index = 0
-}={})=>{
+} = {}) => {
     console.log('fin')
     store.commit(BACKTEST_RUNNING, false)
 }
@@ -320,7 +329,7 @@ const startCalculate = ({
         const timeframe = strategy.timeframe
         //group data by timeframe
         let data = []
-
+        let rawData = [...state.rawData[product]].reverse()
         let groups = _.groupBy(state.rawData[product], (data) => {
             return moment(data[0]).startOf('day').format();
         })
@@ -345,6 +354,12 @@ const startCalculate = ({
         })
         //end of calculating timeframe
 
+        //check if both long & short exist
+        let posSet=new Set()
+        _.map(strategy.value, indicatorSet => {
+            posSet.add(indicatorSet.position)
+        })
+        console.log(posSet)
         //calculate all indicators needed
         let calData = {}
         let resultData = {}
@@ -410,8 +425,14 @@ const startCalculate = ({
                             //         let name1,name2
                             //         if (indicator.compare1 == 'ma_fast') {
                             //             _.map(data, (x, i) => {
-                            if (i < indicator.param1) {} else {
-                                calData[indicatorSet.position][indicatorSet.actionType][orIndex][andIndex]['compareA'].push([x[0], _.round(_.map(data.slice(i - indicator.param1, i), x => priceTypeToPrice(strategy.priceType, x)).reduce((a, b) => a + b) / indicator.param1, 2)])
+
+                            if (indicator.compare1 == 'close') {
+                                calData[indicatorSet.position][indicatorSet.actionType][orIndex][andIndex]['compareA'].push([x[0], _.round(x[4], 2)])
+                            } else {
+                                if (i < indicator.param1 - 1) {} else {
+                                    calData[indicatorSet.position][indicatorSet.actionType][orIndex][andIndex]['compareA'].push([x[0], _.round(_.map(data.slice(i - indicator.param1 + 1, i + 1), x => priceTypeToPrice(strategy.priceType, x)).reduce((a, b) => a + b) / indicator.param1, 2)])
+                                }
+                                //+1 to calculate ma inclusively
                             }
                             // })
                             //     name1='#' + indicator.id + ',MA Fast(' + indicator.param1 + ')'
@@ -428,10 +449,10 @@ const startCalculate = ({
 
                             //         if (indicator.compare2 == 'ma_slow') {
                             //             _.map(data, (x, i) => {
-                            if (i < indicator.param2) {
+                            if (i < indicator.param2 - 1) {
                                 // ma_fast.push([x[0], x[4]])
                             } else {
-                                calData[indicatorSet.position][indicatorSet.actionType][orIndex][andIndex]['compareB'].push([x[0], _.round(_.map(data.slice(i - indicator.param2, i), x => priceTypeToPrice(strategy.priceType, x)).reduce((a, b) => a + b) / indicator.param2, 2)])
+                                calData[indicatorSet.position][indicatorSet.actionType][orIndex][andIndex]['compareB'].push([x[0], _.round(_.map(data.slice(i - indicator.param2 + 1, i + 1), x => priceTypeToPrice(strategy.priceType, x)).reduce((a, b) => a + b) / indicator.param2, 2)])
                             }
                         } //end of ma
 
@@ -441,7 +462,7 @@ const startCalculate = ({
                         // }
 
                         // _.map(data, (x, i) => {
-                        if (i < indicator.param1 || i < indicator.param2) {
+                        if (i < indicator.param1 - 1 || i < indicator.param2 - 1) {
                             // ma_fast.push([x[0], x[4]])
                         } else {
                             // console.log(i)
@@ -459,16 +480,17 @@ const startCalculate = ({
                             }
 
                             if (indicator.compare1 == 'ma_fast') {
-                                compare1Price[orIndex][andIndex] = _.round(_.map(data.slice(i - indicator.param1, i), x => priceTypeToPrice(strategy.priceType, x)).reduce((a, b) => a + b) / indicator.param1, 2)
+                                compare1Price[orIndex][andIndex] = _.round(_.map(data.slice(i - indicator.param1 + 1, i + 1), x => priceTypeToPrice(strategy.priceType, x)).reduce((a, b) => a + b) / indicator.param1, 2)
                             } else
                             if (indicator.compare1 == 'close') {
-                                compare1Price = _.round(x[4], 2)
+                                compare1Price[orIndex][andIndex] = _.round(x[4], 2)
                             }
 
-                            compare2Price[orIndex][andIndex] = _.round(_.map(data.slice(i - indicator.param2, i), x => priceTypeToPrice(strategy.priceType, x)).reduce((a, b) => a + b) / indicator.param2, 2)
+
+                            compare2Price[orIndex][andIndex] = _.round(_.map(data.slice(i - indicator.param2 + 1, i + 1), x => priceTypeToPrice(strategy.priceType, x)).reduce((a, b) => a + b) / indicator.param2, 2)
 
                             //initialize object
-                            if (i == indicator.param1 || i == indicator.param2) {
+                            if (i == indicator.param1 - 1 || i == indicator.param2 - 1) {
 
 
                                 if (!aOverb[indicatorSet.position]) {
@@ -579,7 +601,7 @@ const startCalculate = ({
                 const entryPrice = state.openPos[product][strategy.id][0]
                 const curPrice = priceTypeToPrice(strategy.priceType, x)
 
-                const diff = Math.round((curPrice - entryPrice)*state.size,2)
+                const diff = Math.round((curPrice - entryPrice) * state.size, 2)
                 capital += diff
 
             }
@@ -727,12 +749,12 @@ const startCalculate = ({
         store.commit(START_GEN_RESULT, true)
         console.log('finish cal dataa')
         genResult()
-    }else{
-    startCalculate({
-        product: state.products[index].dataset,
-        index
-    })
-}
+    } else {
+        startCalculate({
+            product: state.products[index].dataset,
+            index
+        })
+    }
 }
 
 const passCondition = (product, strategy, compare1Price, compare2Price, indicatorSet, orIndicator, indicator, orIndex, andIndex, x, i, calData, resultData, aOverb, hasEntry) => {
@@ -872,7 +894,7 @@ const doAction = (product, strategy, indicatorSet, indicator, orIndex, andIndex,
         const entryPrice = state.openPos[product][strategy.id][0]
         const curPrice = priceTypeToPrice(strategy.priceType, x)
 
-        const diff = Math.round((curPrice - entryPrice)*state.size,2)
+        const diff = Math.round((curPrice - entryPrice) * state.size, 2)
         capital += diff
         store.commit(SET_CAPITAL, {
             product: product,
@@ -889,20 +911,24 @@ const doAction = (product, strategy, indicatorSet, indicator, orIndex, andIndex,
             title: 'Sell', // Title of flag displayed on the chart
             text: 'Sell at $' + priceTypeToPrice(strategy.priceType, x) // Text displayed when the flag are highlighted.
         })
+        if (resultData[indicatorSet.position]['noOfTrades'] == undefined) {
+            resultData[indicatorSet.position]['noOfTrades'] = 0
+        }
+        resultData[indicatorSet.position]['noOfTrades']++
 
 
-        // resultData[indicatorSet.position]['trades'].push({
-        //     type: 'flags',
-        //     data: [{
-        //         x: x[0], // Point where the flag appears
-        //         title: 'Sell', // Title of flag displayed on the chart
-        //         text: 'Sell' // Text displayed when the flag are highlighted.
-        //     }],
-        //     onSeries: indicatorSet.position + '-' + indicatorSet.actionType + '-' + orIndex + '-' + andIndex + '-a', // Id of which series it should be placed on. If not defined
-        //     // the flag series will be put on the X axis
-        //     name: 'Sell:' + x[4],
-        //     shape: 'flag' // Defines the shape of the flags.
-        // })
+            // resultData[indicatorSet.position]['trades'].push({
+            //     type: 'flags',
+            //     data: [{
+            //         x: x[0], // Point where the flag appears
+            //         title: 'Sell', // Title of flag displayed on the chart
+            //         text: 'Sell' // Text displayed when the flag are highlighted.
+            //     }],
+            //     onSeries: indicatorSet.position + '-' + indicatorSet.actionType + '-' + orIndex + '-' + andIndex + '-a', // Id of which series it should be placed on. If not defined
+            //     // the flag series will be put on the X axis
+            //     name: 'Sell:' + x[4],
+            //     shape: 'flag' // Defines the shape of the flags.
+            // })
     }
     hasEntry[indicatorSet.position] = !hasEntry[indicatorSet.position]
 }
@@ -1004,7 +1030,7 @@ const requestData = ({
                 index
             })
         } else {
-            store.commit(RUN_BACKTEST)//copy buffer data to rawData
+            store.commit(RUN_BACKTEST) //copy buffer data to rawData
             console.log('finish load dataa')
             store.commit(START_CALCULATE, true)
             startCalculate()

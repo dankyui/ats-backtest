@@ -47,7 +47,8 @@ let messages={
         resultHeader:'Backtest Results',
         inputDate:'Select date range',
         volume:'Volume',
-        ohlc:'OHLC'
+        ohlc:'OHLC',
+        startAnotherTest:'Start another Backtest'
     },
     zh: {
         signin:'登入',
@@ -97,7 +98,8 @@ let messages={
         resultHeader:'回測結果',
         inputDate:'選擇回測日期',
         volume:'成交量',
-        ohlc:'高開低收'
+        ohlc:'高開低收',
+        startAnotherTest:'重新回測'
     }
 }
 

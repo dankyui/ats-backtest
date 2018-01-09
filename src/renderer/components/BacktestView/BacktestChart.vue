@@ -7,7 +7,7 @@
     export default {
         props: ['dataset'],
         mounted() {
-           this.$root.backtestCharts.push(...this.$refs.highcharts)
+           this.$root.backtestCharts.push(this.$refs.highcharts)
         },
         methods:{
             getOptions(key) {

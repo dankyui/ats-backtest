@@ -2,7 +2,7 @@
     <v-layout row wrap justify-center>
         <logo></logo>
         <v-expansion-panel class="ml-5 mr-5" expand>
-            <v-expansion-panel-content v-model="expandA">
+            <v-expansion-panel-content v-model="expandA" v-if="!this.$store.state.Backtest.startLoadData">
                 <h2 slot="header">{{$t('backtestPanelHeader')}}</h2>
                 <v-divider></v-divider>
                 <backtest-step :closePanelA="closePanelA" :startBacktest="startBacktest"></backtest-step>
@@ -79,7 +79,7 @@
                 // )
                 this.$root.backtestCharts=[]
                 setTimeout(() => {
-                    this.expandA = false
+                    // this.expandA = false
                     // this.expandB = true
                     this.started = true
                     this.runBacktest()

@@ -1,11 +1,12 @@
 <template>
-    <v-card class="mb-5 pa-3">
+    <v-card class="pa-3">
         <div v-for="product in products">
             <div v-for="strategy_id in selectedStrategies">
                 <highstock :options="getOptions(product.dataset,strategy_id)" style="height: 400px;" ref="highcharts">
                 </highstock>
             </div>
         </div>
+             <v-btn block color="primary" dark @click="$store.commit('REFRESH_PROGRESS')">{{$t('startAnotherTest')}}</v-btn>
     </v-card>
 </template>
 
@@ -82,6 +83,7 @@
                     data: this.$store.state.Backtest.equityCurve[key][strategy_id]
                 })
                 _.forOwn(this.$store.state.Backtest.resultSet[key][strategy_id], (x, posKey) => {
+                    console.log('number of trades:',x['noOfTrades'])
                     series.push({
                         type: 'flags',
                         data: x['trades']['buy'],
