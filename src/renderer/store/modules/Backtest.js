@@ -17,6 +17,7 @@ const START_CALCULATE = 'START_CALCULATE'
 const START_GEN_RESULT = 'START_GEN_RESULT'
 const REFRESH_PROGRESS = 'REFRESH_PROGRESS'
 const SET_CAL_SET = 'SET_CAL_SET'
+const SET_SIGNAL = 'SET_SIGNAL'
 const SET_RESULT_SET = 'SET_RESULT_SET'
 const ADD_TO_BUFFER = 'ADD_TO_BUFFER'
 const CHANGE_OPEN_POS = 'CHANGE_OPEN_POS'
@@ -27,7 +28,7 @@ const state = {
     products: [{
             "id": 0,
             "dataset": "STK-SEHK-1",
-            "periodSelected": "2017-01-1 00:00:00 ~ 2017-10-1 00:00:00"
+            "periodSelected": "2017-08-1 00:00:00 ~ 2017-10-31 00:00:00"
         },
         // {
         //     "id": 1,
@@ -39,12 +40,13 @@ const state = {
         id: 0,
         name: 'Strategy A',
         timeframe: 1440,
-        priceType: 'close',
+        priceType: 'open',
+        strategyType: 'longShort',
         value: [{
-            position: 'long',
-            actionType: 'entry',
-            indicators: [
-                [{
+                position: 'long',
+                actionType: 'entry',
+                indicators: [
+                    [{
                         id: 0,
                         type: 'ma',
                         param1: 1,
@@ -53,92 +55,176 @@ const state = {
                         compare1: 'close',
                         compare2: 'ma_slow',
                         condition: '^'
-                    },
-
-                ],
-                // [{
-                //     id: 1,
-                //     type: 'ma',
-                //     param1: 10,
-                //     param2: 20,
-                //     param3: 0,
-                //     compare1: 'ma_fast',
-                //     compare2: 'ma_slow',
-                //     condition: '>'
-                // }]
-                // [{
-                //     id: 3,
-                //     type: 'ma',
-                //     param1: 4,
-                //     param2: 8,
-                //     compare1: 'ma_fast',
-                //     compare2: 'ma_slow',
-                //     condition: '^'
-                // }, {
-                //     id: 4,
-                //     type: 'ma',
-                //     param1: 20,
-                //     param2: 30,
-                //     compare1: 'ma_fast',
-                //     compare2: 'ma_slow',
-                //     condition: '>'
-                // }, {
-                //     id: 5,
-                //     type: 'ma',
-                //     param1: 20,
-                //     param2: 30,
-                //     compare1: 'ma_fast',
-                //     compare2: 'ma_slow',
-                //     condition: '>'
-                // }]
-            ]
-        }, {
-            position: 'long',
-            actionType: 'exit',
-            indicators: [
-                [{
-                        id: 2,
-                        type: 'ma',
-                        param1: 1,
-                        param2: 9,
-                        param3: 0,
-                        compare1: 'close',
-                        compare2: 'ma_slow',
-                        condition: 'v'
-                    }
-                    // , {
+                    }],
+                    // [{
+                    //     id: 1,
                     //     type: 'ma',
-                    //     param1: 5,
-                    //     param2: 12,
-                    //     compare1: 'close',
+                    //     param1: 10,
+                    //     param2: 20,
+                    //     param3: 0,
+                    //     compare1: 'ma_fast',
                     //     compare2: 'ma_slow',
-                    //     condition: '<'
-                    // }],
-                    //     [{
-                    //         id: 8,
-                    //         type: 'ma',
-                    //         param1: 5,
-                    //         param2: 12,
-                    //         compare1: 'ma_fast',
-                    //         compare2: 'ma_slow',
-                    //         condition: 'v'
-                    //     }, {
-                    //         id: 9,
-                    //         type: 'ma',
-                    //         param1: 5,
-                    //         param2: 12,
-                    //         compare1: 'ma_fast',
-                    //         compare2: 'ma_slow',
-                    //         condition: '<'
-                    //     }
+                    //     condition: '>'
+                    // }]
+                    // [{
+                    //     id: 3,
+                    //     type: 'ma',
+                    //     param1: 4,
+                    //     param2: 8,
+                    //     compare1: 'ma_fast',
+                    //     compare2: 'ma_slow',
+                    //     condition: '^'
+                    // }, {
+                    //     id: 4,
+                    //     type: 'ma',
+                    //     param1: 20,
+                    //     param2: 30,
+                    //     compare1: 'ma_fast',
+                    //     compare2: 'ma_slow',
+                    //     condition: '>'
+                    // }, {
+                    //     id: 5,
+                    //     type: 'ma',
+                    //     param1: 20,
+                    //     param2: 30,
+                    //     compare1: 'ma_fast',
+                    //     compare2: 'ma_slow',
+                    //     condition: '>'
+                    // }]
                 ]
-            ]
-        }]
+            }, {
+                position: 'long',
+                actionType: 'exit',
+                indicators: [
+                    [{
+                            id: 2,
+                            type: 'ma',
+                            param1: 1,
+                            param2: 9,
+                            param3: 0,
+                            compare1: 'close',
+                            compare2: 'ma_slow',
+                            condition: 'v'
+                        }
+                        // , {
+                        //     type: 'ma',
+                        //     param1: 5,
+                        //     param2: 12,
+                        //     compare1: 'close',
+                        //     compare2: 'ma_slow',
+                        //     condition: '<'
+                        // }],
+                        //     [{
+                        //         id: 8,
+                        //         type: 'ma',
+                        //         param1: 5,
+                        //         param2: 12,
+                        //         compare1: 'ma_fast',
+                        //         compare2: 'ma_slow',
+                        //         condition: 'v'
+                        //     }, {
+                        //         id: 9,
+                        //         type: 'ma',
+                        //         param1: 5,
+                        //         param2: 12,
+                        //         compare1: 'ma_fast',
+                        //         compare2: 'ma_slow',
+                        //         condition: '<'
+                        //     }
+                    ]
+                ]
+            },
+            {
+                position: 'short',
+                actionType: 'entry',
+                indicators: [
+                    [{
+                            id: 3,
+                            type: 'ma',
+                            param1: 1,
+                            param2: 5,
+                            param3: 0,
+                            compare1: 'close',
+                            compare2: 'ma_slow',
+                            condition: 'v'
+                        }
+                        // , {
+                        //     type: 'ma',
+                        //     param1: 5,
+                        //     param2: 12,
+                        //     compare1: 'close',
+                        //     compare2: 'ma_slow',
+                        //     condition: '<'
+                        // }],
+                        //     [{
+                        //         id: 8,
+                        //         type: 'ma',
+                        //         param1: 5,
+                        //         param2: 12,
+                        //         compare1: 'ma_fast',
+                        //         compare2: 'ma_slow',
+                        //         condition: 'v'
+                        //     }, {
+                        //         id: 9,
+                        //         type: 'ma',
+                        //         param1: 5,
+                        //         param2: 12,
+                        //         compare1: 'ma_fast',
+                        //         compare2: 'ma_slow',
+                        //         condition: '<'
+                        //     }
+                    ]
+                ]
+            },
+            {
+                position: 'short',
+                actionType: 'exit',
+                indicators: [
+                    [{
+                            id: 4,
+                            type: 'ma',
+                            param1: 1,
+                            param2: 5,
+                            param3: 0,
+                            compare1: 'close',
+                            compare2: 'ma_slow',
+                            condition: '^'
+                        }
+                        // , {
+                        //     type: 'ma',
+                        //     param1: 5,
+                        //     param2: 12,
+                        //     compare1: 'close',
+                        //     compare2: 'ma_slow',
+                        //     condition: '<'
+                        // }],
+                        //     [{
+                        //         id: 8,
+                        //         type: 'ma',
+                        //         param1: 5,
+                        //         param2: 12,
+                        //         compare1: 'ma_fast',
+                        //         compare2: 'ma_slow',
+                        //         condition: 'v'
+                        //     }, {
+                        //         id: 9,
+                        //         type: 'ma',
+                        //         param1: 5,
+                        //         param2: 12,
+                        //         compare1: 'ma_fast',
+                        //         compare2: 'ma_slow',
+                        //         condition: '<'
+                        //     }
+                    ]
+                ]
+            }
+        ]
     }],
     selectedStrategies: [0],
     initialCapital: 10000,
     capital: {},
     size: 100,
+    confirmBar: 0,
     header: 'loadDataset',
     rawData: {},
     buffer: {},
@@ -149,6 +235,7 @@ const state = {
     startCalculate: false,
     startGenResult: false,
     calSet: {},
+    signals: {},
     resultSet: {},
     equityCurve: {},
     openPos: {}
@@ -187,6 +274,7 @@ const mutations = {
         Vue.set(state.resultSet, dataset, [])
         Vue.set(state.equityCurve, dataset, {})
         Vue.set(state.openPos, dataset, {})
+        Vue.set(state.signals, dataset, {})
 
         // Vue.set(state.calSet, dataset + '_timeframe', [])
     },
@@ -204,7 +292,7 @@ const mutations = {
         state.resultSet = {}
         state.equityCurve = {}
         state.openPos = {}
-
+        state.signals = {}
     },
     [BREAK_BACKTEST](state) {
         state.breakBacktest = true
@@ -234,7 +322,9 @@ const mutations = {
         state.resultSet = {}
         state.equityCurve = {}
         state.openPos = {}
-        state.capital={}
+        state.capital = {}
+        state.signals = {}
+
     },
     [SET_CAL_SET](state, {
         product,
@@ -250,6 +340,13 @@ const mutations = {
         // console.log(product,data)
         // state.calSet[product][strategy]['long']['entry'][indicator] = data
     },
+    [SET_SIGNAL](state, {
+        product,
+        strategy_id,
+        signals
+    }) {
+        state.signals[product][strategy_id] = signals
+    },
     [SET_RESULT_SET](state, {
         product,
         strategy_id,
@@ -260,6 +357,7 @@ const mutations = {
     [CHANGE_OPEN_POS](state, {
         product,
         strategy_id,
+        position,
         isBuy,
         entryPrice
     }) {
@@ -267,27 +365,32 @@ const mutations = {
             state.openPos[product] = {}
         }
         if (!state.openPos[product][strategy_id]) {
-            state.openPos[product][strategy_id] = []
+            state.openPos[product][strategy_id] = {}
+        }
+        if (!state.openPos[product][strategy_id][position]) {
+            state.openPos[product][strategy_id][position] = []
         }
         if (isBuy) {
-            state.openPos[product][strategy_id].push(entryPrice)
+            state.openPos[product][strategy_id][position].push(entryPrice)
         } else {
-            state.openPos[product][strategy_id].pop()
+            state.openPos[product][strategy_id][position].pop()
         }
     },
     [SET_CAPITAL](state, {
         product,
         strategy_id,
+        position,
         capital
     }) {
-        state.capital[product][strategy_id] = capital
+        state.capital[product][strategy_id][position] = capital
     },
     [ADD_EC](state, {
         product,
         strategy_id,
+        position,
         data
     }) {
-        state.equityCurve[product][strategy_id].push(data)
+        state.equityCurve[product][strategy_id][position].push(data)
     }
 }
 
@@ -308,7 +411,7 @@ const genResult = ({
     product = state.products[0].dataset,
     index: index = 0
 } = {}) => {
-    console.log('fin')
+    console.log('finish')
     store.commit(BACKTEST_RUNNING, false)
 }
 
@@ -327,6 +430,7 @@ const startCalculate = ({
 
     _.map(strategies, (strategy) => {
         const timeframe = strategy.timeframe
+
         //group data by timeframe
         let data = []
         let rawData = [...state.rawData[product]].reverse()
@@ -354,18 +458,13 @@ const startCalculate = ({
         })
         //end of calculating timeframe
 
-        //check if both long & short exist
-        let posSet=new Set()
-        _.map(strategy.value, indicatorSet => {
-            posSet.add(indicatorSet.position)
-        })
-        console.log(posSet)
         //calculate all indicators needed
         let calData = {}
-        let resultData = {}
         let aOverb = {}
         let hasEntry = {}
+        let signals = {}
 
+        //use grouped(timeframe) data to calculate
         _.map(data, (x, i) => {
             // console.log(new Date(x[0]),x)
             _.map(strategy.value, indicatorSet => {
@@ -373,27 +472,14 @@ const startCalculate = ({
                 //recognize it position and action type
                 let compare1Price = {},
                     compare2Price = {}
-
                 _.map(indicatorSet.indicators, (orIndicator, orIndex) => {
                     //or indicator
                     _.map(orIndicator, (indicator, andIndex) => {
-                        // console.log('and', indicator)
                         if (!calData[indicatorSet.position]) {
                             calData[indicatorSet.position] = {}
                         }
-                        if (!resultData[indicatorSet.position]) {
-                            resultData[indicatorSet.position] = {}
-                        }
-                        if (!resultData[indicatorSet.position]['trades']) {
-                            resultData[indicatorSet.position]['trades'] = []
-                        }
-                        if (!resultData[indicatorSet.position]['trades']['buy']) {
-                            resultData[indicatorSet.position]['trades']['buy'] = []
-                        }
-                        if (!resultData[indicatorSet.position]['trades']['sell']) {
-                            resultData[indicatorSet.position]['trades']['sell'] = []
-                        }
-                        if (!hasEntry[indicatorSet.position]) {
+
+                        if (hasEntry[indicatorSet.position] == undefined) {
                             hasEntry[indicatorSet.position] = false
                         }
 
@@ -417,14 +503,15 @@ const startCalculate = ({
                             calData[indicatorSet.position][indicatorSet.actionType][orIndex][andIndex]['compareB'] = []
                         }
 
+                        if (!signals[indicatorSet.position]) {
+                            signals[indicatorSet.position] = {}
+                        }
 
+                        if (!signals[indicatorSet.position][indicatorSet.actionType]) {
+                            signals[indicatorSet.position][indicatorSet.actionType] = []
+                        }
 
                         if (indicator.type == 'ma') {
-                            //         let compare1Data = []
-                            //         let compare2Data = []
-                            //         let name1,name2
-                            //         if (indicator.compare1 == 'ma_fast') {
-                            //             _.map(data, (x, i) => {
 
                             if (indicator.compare1 == 'close') {
                                 calData[indicatorSet.position][indicatorSet.actionType][orIndex][andIndex]['compareA'].push([x[0], _.round(x[4], 2)])
@@ -434,38 +521,13 @@ const startCalculate = ({
                                 }
                                 //+1 to calculate ma inclusively
                             }
-                            // })
-                            //     name1='#' + indicator.id + ',MA Fast(' + indicator.param1 + ')'
-                            // }
-                            // else if (indicator.compare1 == 'close') {
-                            //             _.map(data, (x, i) => {
-                            //                 if (i < indicator.param1) {
-                            //                 } else {
-                            //                     compare1Data.push([x[0], _.round(x[4], 2)])
-                            //                 }
-                            //             })
-                            //             name1='#' + indicator.id + ',Close'
-                            //         }
 
-                            //         if (indicator.compare2 == 'ma_slow') {
-                            //             _.map(data, (x, i) => {
-                            if (i < indicator.param2 - 1) {
-                                // ma_fast.push([x[0], x[4]])
-                            } else {
+                            if (i < indicator.param2 - 1) {} else {
                                 calData[indicatorSet.position][indicatorSet.actionType][orIndex][andIndex]['compareB'].push([x[0], _.round(_.map(data.slice(i - indicator.param2 + 1, i + 1), x => priceTypeToPrice(strategy.priceType, x)).reduce((a, b) => a + b) / indicator.param2, 2)])
                             }
                         } //end of ma
 
-
-                        //             })
-                        //             name2='#' + indicator.id + ',MA Slow(' + indicator.param2 + ')'
-                        // }
-
-                        // _.map(data, (x, i) => {
-                        if (i < indicator.param1 - 1 || i < indicator.param2 - 1) {
-                            // ma_fast.push([x[0], x[4]])
-                        } else {
-                            // console.log(i)
+                        if (i < indicator.param1 - 1 || i < indicator.param2 - 1) {} else {
                             if (!compare1Price[orIndex]) {
                                 compare1Price[orIndex] = {}
                             }
@@ -491,8 +553,6 @@ const startCalculate = ({
 
                             //initialize object
                             if (i == indicator.param1 - 1 || i == indicator.param2 - 1) {
-
-
                                 if (!aOverb[indicatorSet.position]) {
                                     aOverb[indicatorSet.position] = {}
                                 }
@@ -509,110 +569,25 @@ const startCalculate = ({
                                 } else {
                                     aOverb[indicatorSet.position][indicatorSet.actionType][orIndex][andIndex] = false
                                 }
-                                // console.log(i, new Date(x[0]), 'a Over b', aOverb[indicatorSet.position][indicatorSet.actionType][orIndex][andIndex])
                             }
 
                             if (indicatorSet.actionType == 'entry' && !hasEntry[indicatorSet.position]) {
                                 //entry
-                                passCondition(product, strategy, compare1Price, compare2Price, indicatorSet, orIndicator, indicator, orIndex, andIndex, x, i, calData, resultData, aOverb, hasEntry)
+                                passCondition(product, strategy, compare1Price, compare2Price, indicatorSet, orIndicator, indicator, orIndex, andIndex, x, i, calData, aOverb, hasEntry, signals)
                             } else
                             if (indicatorSet.actionType == 'exit' && hasEntry[indicatorSet.position]) {
                                 //exit
-                                passCondition(product, strategy, compare1Price, compare2Price, indicatorSet, orIndicator, indicator, orIndex, andIndex, x, i, calData, resultData, aOverb, hasEntry)
+                                passCondition(product, strategy, compare1Price, compare2Price, indicatorSet, orIndicator, indicator, orIndex, andIndex, x, i, calData, aOverb, hasEntry, signals)
                             }
                             if (compare1Price[orIndex][andIndex] > compare2Price[orIndex][andIndex] && !aOverb[indicatorSet.position][indicatorSet.actionType][orIndex][andIndex]) {
-                                // console.log(i, new Date(x[0]), indicator.id + ':cross above')
                                 aOverb[indicatorSet.position][indicatorSet.actionType][orIndex][andIndex] = true
                             } else if (compare1Price[orIndex][andIndex] < compare2Price[orIndex][andIndex] && aOverb[indicatorSet.position][indicatorSet.actionType][orIndex][andIndex]) {
-                                // console.log(i, new Date(x[0]), indicator.id + ':cross below')
                                 aOverb[indicatorSet.position][indicatorSet.actionType][orIndex][andIndex] = false
                             }
-                            // if (compare1Price > compare2Price && !aOverb[indicatorSet.position][indicatorSet.actionType][orIndex][andIndex]) {
-                            //     console.log(i, new Date(x[0]), 'cross above')
-                            //     aOverb[indicatorSet.position][indicatorSet.actionType][orIndex][andIndex] = !aOverb[indicatorSet.position][indicatorSet.actionType][orIndex][andIndex]
-                            // } else if (compare1Price < compare2Price && aOverb[indicatorSet.position][indicatorSet.actionType][orIndex][andIndex]) {
-                            //     console.log(i, new Date(x[0]), 'cross below')
-                            //     aOverb[indicatorSet.position][indicatorSet.actionType][orIndex][andIndex] = !aOverb[indicatorSet.position][indicatorSet.actionType][orIndex][andIndex]
-                            // } else if (compare1Price > compare2Price) {
-                            //     console.log(i, new Date(x[0]), 'greater than')
-                            // } else if (compare1Price < compare2Price) {
-                            //     console.log(i, new Date(x[0]), 'smaller than')
-                            // }
-
                         }
-
-                        // })
-
-                        // console.log('comp1',compare1Data,indicator)
-                        // console.log('comp2',compare2Data,indicator)
-                        // store.commit(SET_CAL_SET, {
-                        //     product,
-                        //     strategy_id: strategy.id,
-                        //     actionType: indicatorSet.actionType,
-                        //     position: indicatorSet.position,
-                        //     indicator,
-                        //     calData: compare1Data,
-                        //     andIndex,
-                        //     orIndex,
-                        //     timeframe,
-                        //     name:name1
-                        // })
-                        // store.commit(SET_CAL_SET, {
-                        //     product,
-                        //     strategy_id: strategy.id,
-                        //     actionType: indicatorSet.actionType,
-                        //     position: indicatorSet.position,
-                        //     indicator,
-                        //     calData: compare2Data,
-                        //     andIndex,
-                        //     orIndex,
-                        //     timeframe,
-                        //     name: name2
-                        // })
-
                     })
                 })
             })
-            //if has open position,check current price diff with the entry price
-
-            if (!state.equityCurve[product]) {
-                state.equityCurve[product] = {}
-            }
-            if (!state.equityCurve[product][strategy.id]) {
-                state.equityCurve[product][strategy.id] = []
-            }
-
-            if (!state.capital[product]) {
-                state.capital[product] = {}
-            }
-
-            if (!state.openPos[product]) {
-                state.openPos[product] = {}
-            }
-            if (!state.openPos[product][strategy.id]) {
-                state.openPos[product][strategy.id] = []
-            }
-
-            let capital = state.capital[product][strategy.id] || state.initialCapital
-
-            if (state.openPos[product][strategy.id] != undefined && state.openPos[product][strategy.id].length >
-                0) {
-                // console.log('pos', state.openPos[product][strategy.id])
-                const entryPrice = state.openPos[product][strategy.id][0]
-                const curPrice = priceTypeToPrice(strategy.priceType, x)
-
-                const diff = Math.round((curPrice - entryPrice) * state.size, 2)
-                capital += diff
-
-            }
-
-            // console.log(new Date(x[0]), capital)
-            store.commit(ADD_EC, {
-                product: product,
-                strategy_id: strategy.id,
-                data: [x[0], capital]
-            })
-
         })
 
         store.commit(SET_CAL_SET, {
@@ -620,134 +595,151 @@ const startCalculate = ({
             strategy_id: strategy.id,
             calData
         })
+        store.commit(SET_SIGNAL, {
+            product,
+            strategy_id: strategy.id,
+            signals
+        })
+        //end of indicator calculation
+
+        let resultData = {}
+        hasEntry = {}
+        let signalsCopy = _.cloneDeep(signals)
+        let openPos = {}
+        let posArray = []
+        let tempCapital = {}
+        if (strategy.strategyType == 'long') {
+            posArray.push('long')
+        } else if (strategy.strategyType == 'short') {
+            posArray.push('short')
+        } else if (strategy.strategyType == 'longShort') {
+            posArray.push('long', 'short', 'longShort')
+        }
+        if (!resultData['capital']) {
+            resultData['capital'] = {}
+        }
+        if (!resultData['equityCurve']) {
+            resultData['equityCurve'] = {}
+        }
+        if (!resultData['trades']) {
+            resultData['trades'] = {}
+        }
+        if (!resultData['noOfTrade']) {
+            resultData['noOfTrade'] = {}
+        }
+        if (strategy.strategyType == 'longShort') {
+            if (!resultData['capital']['longShort']) {
+                resultData['capital']['longShort'] = state.initialCapital
+            }
+            if (!resultData['equityCurve']['longShort']) {
+                resultData['equityCurve']['longShort'] = []
+            }
+            if (!resultData['trades']['longShort']) {
+                resultData['trades']['longShort'] = {}
+            }
+            if (!resultData['trades']['longShort']['entry']) {
+                resultData['trades']['longShort']['entry'] = []
+            }
+            if (!resultData['trades']['longShort']['exit']) {
+                resultData['trades']['longShort']['exit'] = []
+            }
+            if (!resultData['noOfTrade']['longShort']) {
+                resultData['noOfTrade']['longShort'] = 0
+            }
+            if (!hasEntry['longShort']) {
+                hasEntry['longShort'] = {}
+            }
+            if (!openPos['longShort']) {
+                openPos['longShort'] = []
+            }
+        }
+
+        //start calculating P&L
+        _.map(state.rawData[product], (x, i) => {
+            _.map(strategy.value, indicatorSet => {
+                if (!resultData['capital'][indicatorSet.position]) {
+                    resultData['capital'][indicatorSet.position] = state.initialCapital
+                }
+                if (!resultData['equityCurve'][indicatorSet.position]) {
+                    resultData['equityCurve'][indicatorSet.position] = []
+                }
+                if (!resultData['trades'][indicatorSet.position]) {
+                    resultData['trades'][indicatorSet.position] = {}
+                }
+                if (!resultData['trades'][indicatorSet.position][indicatorSet.actionType]) {
+                    resultData['trades'][indicatorSet.position][indicatorSet.actionType] = []
+                }
+                if (resultData['noOfTrade'][indicatorSet.position] == undefined) {
+                    resultData['noOfTrade'][indicatorSet.position] = 0
+                }
+
+                if (hasEntry[indicatorSet.position] == undefined) {
+                    hasEntry[indicatorSet.position] = false
+                }
+
+                if (!openPos[indicatorSet.position]) {
+                    openPos[indicatorSet.position] = []
+                }
+
+
+
+                if (signalsCopy[indicatorSet.position][indicatorSet.actionType].length == 0) return
+                let tradeTime=1
+                if(strategy.priceType=='open')tradeTime=0
+                if (x[0] >= signalsCopy[indicatorSet.position][indicatorSet.actionType][0].x + ((state.confirmBar+tradeTime) * strategy.timeframe * 60 * 1000)) {
+                    const signal = signalsCopy[indicatorSet.position][indicatorSet.actionType].shift()
+                    if (indicatorSet.actionType == 'entry') {
+                        openPos[indicatorSet.position].push(priceTypeToPrice(strategy.priceType, x))
+                    } else if (indicatorSet.actionType == 'exit') {
+
+                        const entryPrice = _.reduce(openPos[indicatorSet.position],(a,b)=>a+b)/openPos[indicatorSet.position].length
+                        const curPrice = priceTypeToPrice(strategy.priceType, x)
+                        const diff = Math.round((curPrice - entryPrice) * state.size, 2)
+                        resultData['capital'][indicatorSet.position] += diff
+                        tempCapital[indicatorSet.position] = resultData['capital'][indicatorSet.position]
+                        openPos[indicatorSet.position] = []
+
+                    }
+                    resultData['trades'][indicatorSet.position][indicatorSet.actionType].push(signal)
+
+                    resultData['noOfTrade'][indicatorSet.position]++
+                        hasEntry[indicatorSet.position] = !hasEntry[indicatorSet.position]
+                }
+            })
+            _.map(posArray, (position) => {
+                if (!tempCapital[position]) {
+                    tempCapital[position] = state.initialCapital
+                }
+                if (openPos[position].length > 0) {
+                    tempCapital[position] = resultData['capital'][position]
+
+                    const entryPrice = _.reduce(openPos[position],(a,b)=>a+b)/openPos[position].length
+                    const curPrice = priceTypeToPrice(strategy.priceType, x)
+                    const diff = Math.round((curPrice - entryPrice) * state.size, 2)
+                    tempCapital[position] += diff
+                    // console.log(position, ':', openPos, resultData['capital'][position], new Date(x[0]), x, entryPrice, curPrice, diff, openPos[position][0])
+
+                }
+                resultData['equityCurve'][position].push([x[0], tempCapital[position]])
+            })
+        })
+        console.log(resultData)
 
         store.commit(SET_RESULT_SET, {
             product,
             strategy_id: strategy.id,
             resultData
         })
+        //end of calculating P&L
 
 
-        // console.log(aOverb)
-        // console.log(calData)
 
-
-        // const entry = x.value.longEntry
-        // const exit = x.value.longExit
-        // const entryAnd = entry.split('&')
-        // const exitAnd = exit.split('&')
-        // const entryAndOr = _.map(entryAnd, x => x.split('|'))
-        // const exitAndOr = _.map(exitAnd, x => x.split('|'))
-        // console.log(entryAndOr, exitAndOr)
-        // _.map(entryAndOr, x => {
-        //     _.map(x, x => {
-        //         const indicator = x.split(':')
-        // console.log(indicator)
-
-        // if (indicator[0] == 'ma') {
-        //     const conditions = ['^', 'v', '>', '<']
-        //     let condition
-        //     for (let i in conditions) {
-        //         if (_.includes(indicator[1], conditions[i])) {
-        //             condition = conditions[i]
-        //             break
-        //         }
-        //     }
-
-        // const array = indicator[1].split(condition)
-        // console.log(condition, array)
-        // let ma1 = []
-        // _.map(data, (x, i) => {
-        //     if (i < array[0]) {
-        // ma.push([x[0], x[4]])
-        //     } else {
-        //         ma1.push([x[0], _.round(_.map(data.slice(i - array[0], i), x => x[4]).reduce((a, b) => a + b) / array[0], 2)])
-        //     }
-        // })
-
-        // let ma2 = []
-
-        // _.map(data, (x, i) => {
-        //     if (i < array[1]) {
-        //     } else {
-        //         ma2.push([x[0], _.round(_.map(data.slice(i - array[1], i), x => x[4]).reduce((a, b) => a + b) / array[1], 2)])
-        //     }
-        // })
-
-        //     console.log(array[0], ma1)
-        //     console.log(array[1], ma2)
-        //     store.commit(SET_CAL_SET, {
-        //         product,
-        //         strategy: strategy.id,
-        //         entry: true,
-        //         long: true,
-        //         indicator: 'ma(' + array[0] + ')',
-        //         data: ma1
-        //     })
-        //     store.commit(SET_CAL_SET, {
-        //         product,
-        //         strategy: strategy.id,
-        //         entry: true,
-        //         long: true,
-        //         indicator: 'ma(' + array[1] + ')',
-        //         data: ma2
-        //     })
-        // }
-        // })
-        // })
 
     })
-
-    // let data = []
-    // let groups = _.groupBy(state.rawData[product], (data) => {
-    //     return moment(data[0]).startOf('day').format();
-    // })
-
-    // _.map(groups, (x) => {
-    //     for (let i = 0; i < x.length; i += timeframe) {
-    //         let o = []
-    //         let h = []
-    //         let l = []
-    //         let c = []
-    //         let v = []
-    //         for (let j = 0; j < timeframe && i + j < x.length; j++) {
-    //             o.push(x[i + j][1])
-    //             h.push(x[i + j][2])
-    //             l.push(x[i + j][3])
-    //             c.push(x[i + j][4])
-    //             v.push(x[i + j][5])
-    //         }
-    //         data.push([x[i][0], o[0], Math.max(...h), Math.min(...l), c[c.length - 1], _.reduce(v, (a, b) => a + b)])
-    //     }
-    // })
-
-    // store.commit(SET_CAL_SET, {
-    //     product,
-    //     data,
-    //     suffix: '_timeframe'
-    // })
-
-    // let ma = []
-    // _.map(data, (x, i) => {
-    //     if (i < 50) {
-    //         // ma.push([x[0], x[4]])
-    //     } else {
-    //         ma.push([x[0], _.round(_.map(data.slice(i - 50, i), x => x[4]).reduce((a, b) => a + b) / 50, 2)])
-    //     }
-    // })
-
-    // console.log('ma',ma)
-
-
-    // store.commit(SET_CAL_SET, {
-    //     product,
-    //     data: ma,
-    //     suffix: ''
-    // })
     index++
     if (index >= state.products.length) {
         store.commit(START_GEN_RESULT, true)
-        console.log('finish cal dataa')
+        console.log('finish cal data')
         genResult()
     } else {
         startCalculate({
@@ -757,181 +749,105 @@ const startCalculate = ({
     }
 }
 
-const passCondition = (product, strategy, compare1Price, compare2Price, indicatorSet, orIndicator, indicator, orIndex, andIndex, x, i, calData, resultData, aOverb, hasEntry) => {
-    // console.log(i, new Date(x[0]),'has entry:'+hasEntry[indicatorSet.position])
-
-    //**
-    // if(orIndex==indicatorSet.indicators.length-1&&andIndex==orIndicator.length-1){
-
-
-
-    // console.log('hasEntry', hasEntry[indicatorSet.position], 'and', andLength, 'or', orLength)
+const passCondition = (product, strategy, compare1Price, compare2Price, indicatorSet, orIndicator, indicator, orIndex, andIndex, x, i, calData, aOverb, hasEntry, signals) => {
     if (andIndex == orIndicator.length - 1) {
-        //     let count = 0
-        // for (let orLength = 0; orLength < indicatorSet.indicators.length; orLength++) {
-        //     for (let andLength = 0; andLength < orIndicator.length; andLength++) {
-        //         const larger = Math.max([indicatorSet.indicators[orLength][andLength].param1, indicatorSet.indicators[orLength][andLength].param2, indicatorSet.indicators[orLength][andLength].param3])
-        //         if (i >= larger) {
-        //             count++
-        //         }
-        //     }
-        // }
-        // console.log('ts', new Date(x[0]), compare1Price)
-
-        let canTrade = false
+        let hasSignal = false
         for (let i = 0; i < indicatorSet.indicators.length; i++) {
             if (compare1Price[i] == undefined) continue
-            canTrade = true
+            hasSignal = true
             for (let j = 0; j < orIndicator.length; j++) {
-                // console.log('ts', new Date(x[0]), 'i', i, 'j', j, 'p1', compare1Price[i][j],'p2',compare2Price[i][j],'c',indicatorSet.indicators[i][j].condition,'a^b',aOverb,'con',aOverb[indicatorSet.position][indicatorSet.actionType][i][j],(compare1Price[i][j] < compare2Price[i][j] && aOverb[indicatorSet.position][indicatorSet.actionType][i][j]),!(compare1Price[i][j] < compare2Price[i][j] && aOverb[indicatorSet.position][indicatorSet.actionType][i][j]))
-
                 switch (indicatorSet.indicators[i][j].condition) {
                     case '^':
                         if (!(compare1Price[i][j] > compare2Price[i][j] && !aOverb[indicatorSet.position][indicatorSet.actionType][i][j])) {
-                            canTrade = false
+                            hasSignal = false
                         }
                         break
                     case 'v':
                         if (!(compare1Price[i][j] < compare2Price[i][j] && aOverb[indicatorSet.position][indicatorSet.actionType][i][j])) {
-                            canTrade = false
+                            hasSignal = false
                         }
                         break
                     case '>':
                         if (!(compare1Price[i][j] > compare2Price[i][j])) {
-                            canTrade = false
+                            hasSignal = false
                         }
                         break
                     case '<':
                         if (!(compare1Price[i][j] > compare2Price[i][j])) {
-                            canTrade = false
-                            // console.log("can't trade")
+                            hasSignal = false
                         }
                         break
                 }
-                // console.log(i, new Date(x[0]),'can"t trade',compare1Price[i][j],compare2Price[i][j])
-                if (!canTrade) break
+                if (!hasSignal) break
             }
-            if (canTrade) break
+            if (hasSignal) break
         }
-        if (canTrade) {
-            doAction(product, strategy, indicatorSet, indicator, orIndex, andIndex, hasEntry, resultData, x, i)
+        if (hasSignal) {
+            markSignal(product, strategy, indicatorSet, indicator, orIndex, andIndex, hasEntry, x, i, calData, signals)
         }
-        //     switch (indicator.condition) {
-        //     case '^':
-        //         //cross above
-        //         if (compare1Price[orIndex][andIndex] > compare2Price[orIndex][andIndex] && !aOverb[indicatorSet.position][indicatorSet.actionType][orIndex][andIndex]) {
-        //             doAction(indicatorSet, indicator, orIndex, andIndex, hasEntry, resultData, x, i)
-        //         }
-        //         break
-        //     case 'v':
-        //         //cross under
-        //         if (compare1Price[orIndex][andIndex] < compare2Price[orIndex][andIndex] && aOverb[indicatorSet.position][indicatorSet.actionType][orIndex][andIndex]) {
-        //             // if (!hasEntry[indicatorSet.position]) {
-        //             //     console.log(i, new Date(x[0]), indicator.id + ':Buy')
-        //             doAction(indicatorSet, indicator, orIndex, andIndex, hasEntry, resultData, x, i)
-        //             // } else {
-        //             //     console.log(i, new Date(x[0]), indicator.id + ':Sell')
-        //             //     resultData[indicatorSet.position]['trades'].push('Sell')
-        //             // }
-        //             // hasEntry[indicatorSet.position] = !hasEntry[indicatorSet.position]
-        //         }
-        //         break
-        //     case '>':
-        //         //greater then
-        //         if (compare1Price[orIndex][andIndex] > compare2Price[orIndex][andIndex]) {
-        //             console.log(i, new Date(x[0]), indicator.id + ':greater than')
-        //             hasEntry[indicatorSet.position] = !hasEntry[indicatorSet.position]
-        //         }
-        //         break
-        //     case '<':
-        //         //less than
-        //         if (compare1Price[orIndex][andIndex] < compare2Price[orIndex][andIndex]) {
-        //             console.log(i, new Date(x[0]), indicator.id + ':smaller than')
-        //             hasEntry[indicatorSet.position] = !hasEntry[indicatorSet.position]
-        //         }
-        //         break
-        // }
-
     }
-    // console.log(i, new Date(x[0]), indicator.id + ':'+aOverb[indicatorSet.position][indicatorSet.actionType][orIndex][andIndex])
-
-
 }
 
-const doAction = (product, strategy, indicatorSet, indicator, orIndex, andIndex, hasEntry, resultData, x, i) => {
+const markSignal = (product, strategy, indicatorSet, indicator, orIndex, andIndex, hasEntry, x, i, calData, signals) => {
     if (!hasEntry[indicatorSet.position]) {
-        // console.log(i, new Date(x[0]), indicator.id + ':Buy')
-        // console.log(indicatorSet.position+'-'+indicatorSet.actionType+'-'+orIndex+'-'+andIndex+'-a')
-
-        // resultData[indicatorSet.position]['trades'].push({
-        //     type: 'flags',
-        //     data: [{
-        //         x: x[0], // Point where the flag appears
-        //         title: 'Buy', // Title of flag displayed on the chart
-        //         text: 'Buy' // Text displayed when the flag are highlighted.
-        //     }],
-        //     onSeries: indicatorSet.position + '-' + indicatorSet.actionType + '-' + orIndex + '-' + andIndex + '-a', // Id of which series it should be placed on. If not defined
-        //     name: 'Buy:' + x[4],
-        //     // the flag series will be put on the X axis
-        //     shape: 'flag' // Defines the shape of the flags.
+        // store.commit(CHANGE_OPEN_POS, {
+        //     product: product,
+        //     strategy_id: strategy.id,
+        //     position: indicatorSet.position,
+        //     isBuy: true,
+        //     entryPrice: priceTypeToPrice(strategy.priceType, x)
         // })
-        store.commit(CHANGE_OPEN_POS, {
-            product: product,
-            strategy_id: strategy.id,
-            isBuy: true,
-            entryPrice: priceTypeToPrice(strategy.priceType, x)
-        })
-        resultData[indicatorSet.position]['trades']['buy'].push({
-            x: x[0], // Point where the flag appears
-            title: 'Buy', // Title of flag displayed on the chart
-            text: 'Buy at $' + priceTypeToPrice(strategy.priceType, x) // Text displayed when the flag are highlighted.
-        })
-
-
-    } else {
-        // console.log(i, new Date(x[0]), indicator.id + ':Sell.')
-        let capital = state.capital[product][strategy.id] || state.initialCapital
-        const entryPrice = state.openPos[product][strategy.id][0]
-        const curPrice = priceTypeToPrice(strategy.priceType, x)
-
-        const diff = Math.round((curPrice - entryPrice) * state.size, 2)
-        capital += diff
-        store.commit(SET_CAPITAL, {
-            product: product,
-            strategy_id: strategy.id,
-            capital
-        })
-        store.commit(CHANGE_OPEN_POS, {
-            product: product,
-            strategy_id: strategy.id,
-            isBuy: false
-        })
-        resultData[indicatorSet.position]['trades']['sell'].push({
-            x: x[0], // Point where the flag appears
-            title: 'Sell', // Title of flag displayed on the chart
-            text: 'Sell at $' + priceTypeToPrice(strategy.priceType, x) // Text displayed when the flag are highlighted.
-        })
-        if (resultData[indicatorSet.position]['noOfTrades'] == undefined) {
-            resultData[indicatorSet.position]['noOfTrades'] = 0
+        let title = 'LE',
+            text = 'Long Entry: ' + backtest.conditionString(indicator)
+        if (indicatorSet.position == 'short') {
+            title = 'SE'
+            text = 'Short Entry: ' + backtest.conditionString(indicator)
         }
-        resultData[indicatorSet.position]['noOfTrades']++
+        signals[indicatorSet.position][indicatorSet.actionType].push({
+            x: x[0], // Point where the flag appears
+            title: title, // Title of flag displayed on the chart
+            text: text // Text displayed when the flag are highlighted.
+        })
+    } else {
+        // let capital = state.capital[product][strategy.id][indicatorSet.position] || state.initialCapital
+        // const entryPrice = state.openPos[product][strategy.id][indicatorSet.position][0]
+        // const curPrice = priceTypeToPrice(strategy.priceType, x)
 
+        // const diff = Math.round((curPrice - entryPrice) * state.size, 2)
+        // capital += diff
 
-            // resultData[indicatorSet.position]['trades'].push({
-            //     type: 'flags',
-            //     data: [{
-            //         x: x[0], // Point where the flag appears
-            //         title: 'Sell', // Title of flag displayed on the chart
-            //         text: 'Sell' // Text displayed when the flag are highlighted.
-            //     }],
-            //     onSeries: indicatorSet.position + '-' + indicatorSet.actionType + '-' + orIndex + '-' + andIndex + '-a', // Id of which series it should be placed on. If not defined
-            //     // the flag series will be put on the X axis
-            //     name: 'Sell:' + x[4],
-            //     shape: 'flag' // Defines the shape of the flags.
-            // })
+        // store.commit(SET_CAPITAL, {
+        //     product: product,
+        //     strategy_id: strategy.id,
+        //     position: indicatorSet.position,
+        //     capital
+        // })
+        // store.commit(CHANGE_OPEN_POS, {
+        //     product: product,
+        //     strategy_id: strategy.id,
+        //     position: indicatorSet.position,
+        //     isBuy: false
+        // })
+
+        let title = 'LX',
+            text = 'Long Exit: ' + backtest.conditionString(indicator)
+        if (indicatorSet.position == 'short') {
+            title = 'SX'
+            text = 'Short Exit: ' + backtest.conditionString(indicator)
+        }
+        signals[indicatorSet.position][indicatorSet.actionType].push({
+            x: x[0], // Point where the flag appears
+            title: title, // Title of flag displayed on the chart
+            text: text // Text displayed when the flag are highlighted.
+        })
+        //     if (resultData[indicatorSet.position]['noOfTrades'] == undefined) {
+        //         resultData[indicatorSet.position]['noOfTrades'] = 0
+        //     }
+        //     resultData[indicatorSet.position]['noOfTrades']++
     }
     hasEntry[indicatorSet.position] = !hasEntry[indicatorSet.position]
 }
+
 
 const requestData = ({
     date,
@@ -981,25 +897,11 @@ const requestData = ({
                     const close = parseFloat(x[5])
                     const vol = parseFloat(x[6])
                     rawData.push([ts, open, high, low, close, vol])
-                    // ohlc.push([ts, open, high, low, close])
-                    // volume.push([ts, vol])
                 })
                 store.commit(ADD_TO_BUFFER, {
                     dataset,
                     rawData,
-                    // ohlc,
-                    // volume
                 })
-                // requestData({
-                //     date: date.add(1, 'days'),
-                //     endDate,
-                //     productType,
-                //     productExchange,
-                //     productCode,
-                //     dataset,
-                //     index
-                // })
-                // } else {
             }
             requestData({
                 date: date.add(1, 'days'),

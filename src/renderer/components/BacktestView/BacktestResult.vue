@@ -6,7 +6,7 @@
                 </highstock>
             </div>
         </div>
-             <v-btn block color="primary" dark @click="$store.commit('REFRESH_PROGRESS')">{{$t('startAnotherTest')}}</v-btn>
+        <v-btn block color="primary" dark @click="$store.commit('REFRESH_PROGRESS')">{{$t('startAnotherTest')}}</v-btn>
     </v-card>
 </template>
 
@@ -30,7 +30,7 @@
             }
         },
         mounted() {
-            this.$root.backtestCharts.push(...this.$refs.highcharts)
+            // this.$root.backtestCharts.push(...this.$refs.highcharts)
 
             // console.log('a:', this.$root)
             // setInterval(()=>{
@@ -40,7 +40,7 @@
         },
         methods: {
             getOptions(key, strategy_id) {
-                // console.log(this.$store.state.Backtest.calSet[key])
+                // console.log(this.$store.state.Backtest.equityCurve)
 
                 let title = {}
                 const keyAry = key.split('-')
@@ -77,33 +77,47 @@
                 //         })
                 //     })
                 // })
-                series.push({
-                    id: 'equityCurve',
-                    name: 'Equity Curve',
-                    data: this.$store.state.Backtest.equityCurve[key][strategy_id]
-                })
-                _.forOwn(this.$store.state.Backtest.resultSet[key][strategy_id], (x, posKey) => {
-                    console.log('number of trades:',x['noOfTrades'])
+                _.forOwn(this.$store.state.Backtest.resultSet[key][strategy_id]['equityCurve'], (x, posKey) => {
+                    let text='Long only'
+                    if(posKey=='short'){
+                        text='Short only'
+                    }else if(posKey=='longShort'){
+                        text='Long+Short'
+                    }
                     series.push({
-                        type: 'flags',
-                        data: x['trades']['buy'],
-                        onSeries: 'equityCurve', // Id of which series it should be placed on. If not defined
-                        // the flag series will be put on the X axis
-                        name: 'Buy',
-                        shape: 'flag' // Defines the shape of the flags.
-                    })
-                    series.push({
-                        type: 'flags',
-                        data: x['trades']['sell'],
-                        onSeries: 'equityCurve', // Id of which series it should be placed on. If not defined
-                        // the flag series will be put on the X axis
-                        name: 'Sell',
-                        shape: 'flag' // Defines the shape of the flags.
+                        id: 'equityCurve',
+                        name: text,
+                        data: x
                     })
                 })
+
+                // _.forOwn(this.$store.state.Backtest.resultSet[key][strategy_id], (x, posKey) => {
+                //     console.log('number of trades:', x['noOfTrades'], posKey)
+
+                //     console.log(x['trades'])
+                //     series.push({
+                //         // showInLegend: false,
+                //         // visible:false,
+                //         type: 'flags',
+                //         data: x['trades']['entry'],
+                //         onSeries: 'equityCurve', // Id of which series it should be placed on. If not defined
+                //         // the flag series will be put on the X axis
+                //         name: (posKey == 'long') ? 'Buy' : 'Sell Short',
+                //         shape: 'squarepin' // Defines the shape of the flags.
+                //     })
+                //     series.push({
+                //         // showInLegend: false,
+                //         type: 'flags',
+                //         data: x['trades']['exit'],
+                //         onSeries: 'equityCurve', // Id of which series it should be placed on. If not defined
+                //         // the flag series will be put on the X axis
+                //         name: (posKey == 'long') ? 'Sell' : 'Buy to Cover',
+                //         shape: 'squarepin' // Defines the shape of the flags.
+                //     })
+                // })
                 let timeframe = this.$store.state.Backtest.strategies[strategy_id].timeframe
                 const subtitle = {
-                    text: 'Timeframe: ' + this.$time.minimize(timeframe)
+                    text: 'Equity Curve'
                 }
                 return {
                     credits: {

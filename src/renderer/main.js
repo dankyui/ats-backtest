@@ -133,6 +133,42 @@ function isJson(item) {
   return false;
 }
 
+global.backtest = {
+conditionString(indicator){
+  let text=''
+  text+=backtest.compareString(indicator.compare1,indicator.param1)
+
+  switch(indicator.condition){
+      case '^':
+      text+=' cross above '
+      break
+      case 'v':
+      text+=' cross under '
+      break
+      case '>':
+      text+=' greater than '
+      break
+      case '<':
+      text+=' small than '
+      break
+  }
+  text+=backtest.compareString(indicator.compare2,indicator.param2)
+  return text
+},
+compareString(v,param){
+  switch(v){
+      case 'close':
+      return 'Close price'
+      break
+      case 'ma_fast':
+      return 'MA fast('+param+')'
+      case 'ma_slow':
+      return 'MA slow('+param+')'
+      break
+  }
+}
+}
+
 Vue.prototype.$locale = {
   change(lang) {
     i18n.locale = lang
